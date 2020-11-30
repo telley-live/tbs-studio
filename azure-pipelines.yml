@@ -14,15 +14,24 @@ variables:
 jobs:
 - job: 'Build_macOS'
   pool:
-    vmImage: 'macos-10.13'
+    vmImage: 'macos-10.15'
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
+
   - script: ./CI/install-dependencies-osx.sh
     displayName: 'Install Dependencies'
 
+  #- task: InstallAppCertificate@2
+  #  inputs:
+  #    certSecureFile: 'identity.p12'
+
+  #- task: InstallAppleProvisioningProfile@1
+  #  inputs:
+  #    provProfileSecureFile: 'profile.mobileprovision'
+
   - script: ./CI/before-script-osx.sh
-    displayName: 'Cmake'
+    displayName: 'Configure CMake'
 
   - bash: |
       cd ./build
@@ -30,9 +39,12 @@ jobs:
       cd -
     displayName: 'Build'
 
+  - script: ./CI/after-build-osx.sh
+    displayName: 'Prepare app'
+
   - script: ./CI/before-deploy-osx.sh
     condition: ne(variables['Build.Reason'], 'PullRequest')
-    displayName: 'Before Deploy'
+    displayName: 'Package dmg'
 
   - task: PublishBuildArtifacts@1
     condition: ne(variables['Build.Reason'], 'PullRequest')
@@ -40,69 +52,69 @@ jobs:
       pathtoPublish: './nightly'
       artifactName: build
 
-- job: 'Build_Windows32'
-  pool:
-    vmImage: 'vs2017-win2016'
-  steps:
-  - script: git submodule update --init --recursive
-    displayName: 'Checkout Submodules'
-  - script: ./CI/install-qt-win.cmd
-    displayName: 'Install QT'
-  - script: ./CI/install-script-win.cmd
-    displayName: 'Download / Setup Deps / Run CMake'
-  - task: MSBuild@1
-    displayName: 'Build 32-bit'
-    inputs: 
-      msbuildArguments: '/m /p:Configuration=RelWithDebInfo'
-      solution: .\build32\obs-studio.sln
-  - script: ./CI/before-deploy-win.cmd
-    condition: ne(variables['Build.Reason'], 'PullRequest')
-    displayName: 'Before deploy'
-  - task: PublishBuildArtifacts@1
-    condition: ne(variables['Build.Reason'], 'PullRequest')
-    inputs:
-      pathtoPublish: './build'
-      artifactName: winbuild
-
-- job: 'Build_Windows64'
-  pool:
-    vmImage: 'vs2017-win2016'
-  steps:
-  - script: git submodule update --init --recursive
-    displayName: 'Checkout Submodules'
-  - script: ./CI/install-qt-win.cmd
-    displayName: 'Install QT'
-  - script: ./CI/install-script-win.cmd
-    displayName: 'Download / Setup Deps / Run CMake'
-  - task: MSBuild@1
-    displayName: 'Build 64-bit'
-    inputs: 
-      msbuildArguments: '/m /p:Configuration=RelWithDebInfo'
-      solution: .\build64\obs-studio.sln
-  - script: ./CI/before-deploy-win.cmd
-    condition: ne(variables['Build.Reason'], 'PullRequest')
-    displayName: 'Before deploy'
-  - task: PublishBuildArtifacts@1
-    condition: ne(variables['Build.Reason'], 'PullRequest')
-    inputs:
-      pathtoPublish: './build'
-      artifactName: winbuild
-
-- job: 'Build_Linux'
-  pool:
-    vmImage: 'ubuntu-16.04'
-  steps:
-  - script: git submodule update --init --recursive
-    displayName: 'Checkout Submodules'
-  - script: ./CI/install-dependencies-linux.sh
-    displayName: 'Install Dependencies'
-
-  - script: ./CI/before-script-linux.sh
-    displayName: 'CMake'
-
-  - bash: |
-      cd ./build
-      make -j4
-      cd -
-    displayName: 'Build'
+#- job: 'Build_Windows32'
+#  pool:
+#    vmImage: 'vs2017-win2016'
+#  steps:
+#  - script: git submodule update --init --recursive
+#    displayName: 'Checkout Submodules'
+#  - script: ./CI/install-qt-win.cmd
+#    displayName: 'Install QT'
+#  - script: ./CI/install-script-win.cmd
+#    displayName: 'Download / Setup Deps / Run CMake'
+#  - task: MSBuild@1
+#    displayName: 'Build 32-bit'
+#    inputs: 
+#      msbuildArguments: '/m /p:Configuration=RelWithDebInfo'
+#      solution: .\build32\obs-studio.sln
+#  - script: ./CI/before-deploy-win.cmd
+#    condition: ne(variables['Build.Reason'], 'PullRequest')
+#    displayName: 'Before deploy'
+#  - task: PublishBuildArtifacts@1
+#    condition: ne(variables['Build.Reason'], 'PullRequest')
+#    inputs:
+#      pathtoPublish: './build'
+#      artifactName: winbuild
+#
+#- job: 'Build_Windows64'
+#  pool:
+#    vmImage: 'vs2017-win2016'
+#  steps:
+#  - script: git submodule update --init --recursive
+#    displayName: 'Checkout Submodules'
+#  - script: ./CI/install-qt-win.cmd
+#    displayName: 'Install QT'
+#  - script: ./CI/install-script-win.cmd
+#    displayName: 'Download / Setup Deps / Run CMake'
+#  - task: MSBuild@1
+#    displayName: 'Build 64-bit'
+#    inputs: 
+#      msbuildArguments: '/m /p:Configuration=RelWithDebInfo'
+#      solution: .\build64\obs-studio.sln
+#  - script: ./CI/before-deploy-win.cmd
+#    condition: ne(variables['Build.Reason'], 'PullRequest')
+#    displayName: 'Before deploy'
+#  - task: PublishBuildArtifacts@1
+#    condition: ne(variables['Build.Reason'], 'PullRequest')
+#    inputs:
+#      pathtoPublish: './build'
+#      artifactName: winbuild
+#
+#- job: 'Build_Linux'
+#  pool:
+#    vmImage: 'ubuntu-16.04'
+#  steps:
+#  - script: git submodule update --init --recursive
+#    displayName: 'Checkout Submodules'
+#  - script: ./CI/install-dependencies-linux.sh
+#    displayName: 'Install Dependencies'
+#
+#  - script: ./CI/before-script-linux.sh
+#    displayName: 'CMake'
+#
+#  - bash: |
+#      cd ./build
+#      make -j4
+#      cd -
+#    displayName: 'Build'
 

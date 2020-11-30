@@ -47,12 +47,21 @@ inline bool OBSBasicSettings::IsCustomService() const
 inline int OBSBasicSettings::IsWebRTC() const
 {
 	if (ui->service->currentData().toInt() > (int)ListOpt::Custom)
-		return ui->service->currentData().toInt();
+                // <TELLEY>
+		// Default to millicast service
+		return (int)ListOpt::Millicast;
+                // </TELLEY>
 	return 0;
 }
 
 void OBSBasicSettings::InitStreamPage()
 {
+        // <TELLEY>
+	// Hide service change combo box
+	ui->serviceLabel->setVisible(false);
+	ui->service->setVisible(false);
+        // </TELLEY>
+
 	ui->connectAccount2->setVisible(false);
 	ui->disconnectAccount->setVisible(false);
 	ui->bandwidthTestEnable->setVisible(false);
@@ -143,7 +152,10 @@ void OBSBasicSettings::LoadStream1Settings()
 		ui->customServer->setText(server);
 		ui->room->setText(QT_UTF8(room));
 		ui->authUsername->setText(QT_UTF8(username));
-		ui->authPw->setText(QT_UTF8(password));
+		QString pwd = QT_UTF8(password);
+                ui->authPw->setEnabled(pwd.isEmpty());
+                ui->authPwShow->setVisible(pwd.isEmpty());
+		ui->authPw->setText(pwd);
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
 
@@ -167,6 +179,8 @@ void OBSBasicSettings::LoadStream1Settings()
 	}
 
 	ui->key->setText(key);
+        ui->authPw->setEchoMode(QLineEdit::Password);
+        ui->authPwShow->setText(QTStr("Show"));
 
 	lastService.clear();
 	on_service_currentIndexChanged(0);
@@ -246,6 +260,8 @@ void OBSBasicSettings::SaveStream1Settings()
 	main->auth = auth;
 	if (!!main->auth)
 		main->auth->LoadUI();
+
+	LoadStream1Settings();
 }
 
 void OBSBasicSettings::UpdateKeyLink()

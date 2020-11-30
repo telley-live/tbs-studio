@@ -30,7 +30,7 @@ OBSProjector::OBSProjector(QWidget *widget, obs_source_t *source_, int monitor,
 
 	if (isWindow) {
 		setWindowIcon(
-			QIcon::fromTheme("obs", QIcon(":/res/images/obs.png")));
+			QIcon::fromTheme("obs", QIcon(":/res/images/telley.png")));
 
 		UpdateProjectorTitle(projectorTitle);
 		windowedProjectors.push_back(this);

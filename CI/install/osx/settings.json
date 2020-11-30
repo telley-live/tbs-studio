@@ -1,5 +1,5 @@
 {
-    "title": "Millicast OBS-Studio-WebRTC Installer",
+    "title": "Telley Viewer",
     "background": "../CI/install/osx/background.tiff",
     "format": "UDZO",
     "compression-level": 9,
@@ -7,7 +7,7 @@
                 "size": { "width": 540, "height": 380 } },
     "contents": [
         { "x": 120, "y": 180, "type": "file",
-          "path": "./OBS.app" },
+          "path": "./Telley Viewer.app" },
         { "x": 420, "y": 180, "type": "link", "path": "/Applications" }
     ]
 }

@@ -3,28 +3,28 @@
 <plist version="1.0">
 <dict>
  	<key>CFBundleIconFile</key>
- 	<string>OBS.icns</string>
+ 	<string>telley.icns</string>
  	<key>CFBundleName</key>
- 	<string>Millicast</string>
+ 	<string>Telley Viewer</string>
  	<key>CFBundleGetInfoString</key>
- 	<string>Millicast</string>
+ 	<string>Telley Viewer</string>
  	<key>CFBundleExecutable</key>
- 	<string>obs</string>
+ 	<string>tv</string>
  	<key>CFBundleIdentifier</key>
- 	<string>ci.cosmosoftware.obs-webrtc</string>
+ 	<string>live.telley.viewer</string>
  	<key>CFBundlePackageType</key>
  	<string>APPL</string>
  	<key>CFBundleSignature</key>
  	<string>????</string>
  	<key>LSMinimumSystemVersion</key>
- 	<string>10.8.5</string>
+ 	<string>10.13.0</string>
  	<key>NSHighResolutionCapable</key>
  	<true/>
  	<key>LSAppNapIsDisabled</key>
  	<true/>
  	<key>NSCameraUsageDescription</key>
- 	<string>Millicast needs to access the camera to enable camera sources to work.</string>
+ 	<string>Telley Viewer needs to access the camera to enable camera sources to work.</string>
  	<key>NSMicrophoneUsageDescription</key>
- 	<string>Millicast needs to access the microphone to enable audio input.</string>
+ 	<string>Telley Viewer needs to access the microphone to enable audio input.</string>
 </dict>
 </plist>

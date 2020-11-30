@@ -10,15 +10,15 @@ if(NOT DEFINED APPDATA_RELEASE_DATE)
 endif()
 
 configure_file(
-	com.obsproject.Studio.appdata.xml.in
-	com.obsproject.Studio.appdata.xml)
+	live.telley.tbs.appdata.xml.in
+	live.telley.tbs.appdata.xml)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/com.obsproject.Studio.appdata.xml
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/live.telley.tbs.appdata.xml
 	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
 
-install(FILES com.obsproject.Studio.desktop
+install(FILES live.telley.tbs.desktop
 	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
 
-install(FILES ../forms/images/obs.png
+install(FILES ../forms/images/telley.png
 	DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps
-	RENAME com.obsproject.Studio.png)
+	RENAME live.telley.tbs.png)

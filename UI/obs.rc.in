@@ -7,12 +7,12 @@ BEGIN
   BEGIN
     BLOCK "040904B0"
     BEGIN
-      VALUE "CompanyName", "OBS"
-      VALUE "FileDescription", "OBS Studio"
+      VALUE "CompanyName", "Telley"
+      VALUE "FileDescription", "Telley Viewer"
       VALUE "FileVersion", "${UI_VERSION}"
-      VALUE "InternalName", "obs"
+      VALUE "InternalName", "telley-studio"
       VALUE "OriginalFilename", "obs"
-      VALUE "ProductName", "OBS Studio"
+      VALUE "ProductName", "Telley Viewer"
       VALUE "ProductVersion", "${UI_VERSION}"
       VALUE "Comments", "Free and open source software for video recording and live streaming"
       VALUE "LegalCopyright", "(C) Hugh Bailey"

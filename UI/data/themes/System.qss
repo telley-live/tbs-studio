@@ -208,3 +208,19 @@ VisibilityCheckBox::indicator:unchecked {
 * [themeID="revertIcon"] {
     qproperty-icon: url(:res/images/revert.svg);
 }
+
+/* Telley */
+
+* [themeID="starting"] {
+    background-color: rgb(100, 30, 22);
+}
+
+* [themeID="streaming"] {
+    background-color: rgb(192, 57, 43);
+}
+
+* [themeID="stopping"] {
+}
+
+* [themeID="stopped"] {
+}

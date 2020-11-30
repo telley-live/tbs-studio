@@ -299,6 +299,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	ui->listWidget->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+	ui->settingsPages->setCurrentIndex(0);
+
 	/* clang-format off */
 	HookWidget(ui->language,             COMBO_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->theme, 		     COMBO_CHANGED,  GENERAL_CHANGED);
@@ -577,6 +579,13 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 		SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->advOutTrack6Bitrate, SIGNAL(currentIndexChanged(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
+	connect(ui->advTelleyResetBtn, SIGNAL(clicked()), this,
+		SLOT(TelleyResetStreamConfig()));
+
+	ui->groupBox_5->setVisible(false);
+	ui->groupBox_6->setVisible(false);
+	ui->advOutTabs->removeTab(3);
+	ui->advOutTabs->removeTab(1);
 
 	//Apply button disabled until change.
 	EnableApplyButton(false);
@@ -814,6 +823,8 @@ void OBSBasicSettings::LoadEncoderTypes()
 	size_t idx = 0;
 
 	ui->advOutRecEncoder->addItem(TEXT_USE_STREAM_ENC, "none");
+
+	bool picked_hw_encoder = false;
 
 	while (obs_enum_encoder_types(idx++, &type)) {
 		const char *name = obs_encoder_get_display_name(type);
@@ -1638,7 +1649,7 @@ void OBSBasicSettings::LoadAdvOutputStreamingEncoderProperties()
 	const char *type =
 		config_get_string(main->Config(), "AdvOut", "Encoder");
 
-	delete streamEncoderProps;
+	/*delete streamEncoderProps;
 	streamEncoderProps =
 		CreateEncoderPropertyView(type, "streamEncoder.json");
 	ui->advOutputStreamTab->layout()->addWidget(streamEncoderProps);
@@ -1646,7 +1657,7 @@ void OBSBasicSettings::LoadAdvOutputStreamingEncoderProperties()
 	connect(streamEncoderProps, SIGNAL(Changed()), this,
 		SLOT(UpdateStreamDelayEstimate()));
 	connect(streamEncoderProps, SIGNAL(Changed()), this,
-		SLOT(AdvReplayBufferChanged()));
+		SLOT(AdvReplayBufferChanged()));*/
 
 	curAdvStreamEncoder = type;
 
@@ -4555,4 +4566,28 @@ void OBSBasicSettings::SetHotkeysIcon(const QIcon &icon)
 void OBSBasicSettings::SetAdvancedIcon(const QIcon &icon)
 {
 	ui->listWidget->item(6)->setIcon(icon);
+}
+
+void OBSBasicSettings::TelleyResetStreamConfig()
+{
+	obs_service_t *service = main->GetService();
+	OBSData hotkey_data = obs_hotkeys_save_service(service);
+	obs_data_release(hotkey_data);
+
+	OBSData settings = obs_service_get_settings(service);
+	obs_data_release(settings);
+	obs_data_erase(settings, "password");
+
+	const char *id = obs_service_get_id(service);
+
+	OBSService new_service = obs_service_create(id, "default_service", settings, hotkey_data);
+	obs_service_release(new_service);
+
+	if (!new_service) {
+		return;
+	}
+
+	main->SetService(new_service);
+	main->SaveService();
+	LoadStream1Settings();
 }

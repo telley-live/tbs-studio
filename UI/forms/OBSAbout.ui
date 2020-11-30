@@ -61,7 +61,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>:res/images/obs.png</pixmap>
+        <pixmap resource="obs.qrc">:/res/images/telley.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -76,7 +76,7 @@
        <item>
         <widget class="QLabel" name="name">
          <property name="text">
-          <string notr="true">OBS Studio</string>
+          <string notr="true">Telley Viewer</string>
          </property>
         </widget>
        </item>
@@ -214,6 +214,8 @@
    <header>clickable-label.hpp</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="obs.qrc"/>
+ </resources>
  <connections/>
 </ui>

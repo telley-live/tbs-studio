@@ -15,12 +15,7 @@ add_subdirectory(obs-frontend-api)
 
 # ----------------------------------------------------------------------------
 
-if( NOT OBS_WEBRTC_VENDOR_NAME )
-	set( _gui_name obs )
-else()
-	# NOTE ALEX: ugly, fix me.
-	set( _gui_name ebs )
-endif()
+set(_gui_name tv)
 project(${_gui_name})
 
 set(DISABLE_UPDATE_MODULE TRUE CACHE BOOL "Disables building the update module")
@@ -335,7 +330,8 @@ set(obs_UI
 	forms/OBSExtraBrowsers.ui
 	forms/OBSUpdate.ui
 	forms/OBSRemux.ui
-	forms/OBSAbout.ui)
+	forms/OBSAbout.ui
+		)
 
 set(obs_QRC
 	forms/obs.qrc)

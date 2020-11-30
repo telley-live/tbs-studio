@@ -16,6 +16,7 @@
 ******************************************************************************/
 
 #include <sstream>
+#include <iostream>
 #include <dlfcn.h>
 #include <util/base.h>
 #include <obs-config.h>

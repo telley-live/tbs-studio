@@ -9,7 +9,7 @@ void RecordButton::resizeEvent(QResizeEvent *event)
 
 	QSize newSize = event->size();
 	QSize pauseSize = main->pause->size();
-	int height = main->ui->recordButton->size().height();
+	int height = 0;//main->ui->recordButton->size().height();
 
 	if (pauseSize.height() != height || pauseSize.width() != height) {
 		main->pause->setMinimumSize(height, height);

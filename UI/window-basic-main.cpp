@@ -213,6 +213,18 @@ OBSBasic::OBSBasic(QWidget *parent)
 
 	ui->setupUi(this);
 	ui->previewDisabledWidget->setVisible(false);
+	ui->actionShow_Recordings->setVisible(false);
+	ui->actionRemux->setVisible(false);
+	ui->autoConfigure->setVisible(false);
+	ui->autoConfigure2->setVisible(false);
+	ui->actionDiscord->setVisible(false);
+	ui->actionHelpPortal->setVisible(false);
+	// Should automatic updates be configured? (Sparkle framework)
+	ui->actionCheckForUpdates->setVisible(false);
+	// Should logs be uploaded to Telley?
+	ui->actionUploadCurrentLog->setVisible(false);
+	ui->actionUploadLastCrashLog->setVisible(false);
+	ui->actionUploadLastLog->setVisible(false);
 
 	startingDockLayout = saveState();
 
@@ -328,7 +340,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	assignDockToggle(ui->scenesDock, ui->toggleScenes);
 	assignDockToggle(ui->sourcesDock, ui->toggleSources);
 	assignDockToggle(ui->mixerDock, ui->toggleMixer);
-	assignDockToggle(ui->transitionsDock, ui->toggleTransitions);
+	// assignDockToggle(ui->transitionsDock, ui->toggleTransitions);
 	assignDockToggle(ui->controlsDock, ui->toggleControls);
 	assignDockToggle(statsDock, ui->toggleStats);
 
@@ -336,9 +348,15 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->toggleScenes->setChecked(false);
 	ui->toggleSources->setChecked(false);
 	ui->toggleMixer->setChecked(false);
-	ui->toggleTransitions->setChecked(false);
+	// ui->toggleTransitions->setChecked(false);
 	ui->toggleControls->setChecked(false);
 	ui->toggleStats->setChecked(false);
+
+	// <TELLEY>
+	// Remove transitions dock and menu item to restore it
+	ui->transitionsDock->setVisible(false);
+	ui->toggleTransitions->setVisible(false);
+	// </TELLEY>
 
 	QPoint curPos;
 
@@ -869,8 +887,10 @@ void OBSBasic::Load(const char *file)
 	const char *sceneName = obs_data_get_string(data, "current_scene");
 	const char *programSceneName =
 		obs_data_get_string(data, "current_program_scene");
-	const char *transitionName =
-		obs_data_get_string(data, "current_transition");
+	// <TELLEY>
+	// Default to Cut transition
+	const char *transitionName = "Cut";
+	// </TELLEY>
 
 	if (!opt_starting_scene.empty()) {
 		programSceneName = opt_starting_scene.c_str();
@@ -881,9 +901,6 @@ void OBSBasic::Load(const char *file)
 	int newDuration = obs_data_get_int(data, "transition_duration");
 	if (!newDuration)
 		newDuration = 300;
-
-	if (!transitionName)
-		transitionName = obs_source_get_name(fadeTransition);
 
 	const char *curSceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollection");
@@ -1146,8 +1163,11 @@ bool OBSBasic::InitBasicConfigDefaults()
 
 	QScreen *primaryScreen = QGuiApplication::primaryScreen();
 
-	uint32_t cx = primaryScreen->size().width();
-	uint32_t cy = primaryScreen->size().height();
+	// <TELLEY>
+	// Default resolution
+	uint32_t cx = 1280;
+	uint32_t cy = 720;
+	// </TELLEY>
 
 	bool oldResolutionDefaults = config_get_bool(
 		App()->GlobalConfig(), "General", "Pre19Defaults");
@@ -1195,7 +1215,7 @@ bool OBSBasic::InitBasicConfigDefaults()
 
 	/* ----------------------------------------------------- */
 
-	config_set_default_string(basicConfig, "Output", "Mode", "Simple");
+	config_set_default_string(basicConfig, "Output", "Mode", "Advanced");
 
 	config_set_default_string(basicConfig, "SimpleOutput", "FilePath",
 				  GetDefaultVideoSavePath().c_str());
@@ -1223,7 +1243,7 @@ bool OBSBasic::InitBasicConfigDefaults()
 				true);
 	config_set_default_bool(basicConfig, "AdvOut", "UseRescale", false);
 	config_set_default_uint(basicConfig, "AdvOut", "TrackIndex", 1);
-	config_set_default_string(basicConfig, "AdvOut", "Encoder", "obs_x264");
+	config_set_default_string(basicConfig, "AdvOut", "Encoder", "vt_h264_hw");
 
 	config_set_default_string(basicConfig, "AdvOut", "RecType", "Standard");
 
@@ -2125,16 +2145,6 @@ void OBSBasic::CreateHotkeys()
 		Str("Basic.Main.ForceStopStreaming"), cb, this);
 	LoadHotkey(forceStreamingStopHotkey, "OBSBasic.ForceStopStreaming");
 
-	recordingHotkeys = obs_hotkey_pair_register_frontend(
-		"OBSBasic.StartRecording", Str("Basic.Main.StartRecording"),
-		"OBSBasic.StopRecording", Str("Basic.Main.StopRecording"),
-		MAKE_CALLBACK(!basic.outputHandler->RecordingActive() &&
-				      !basic.ui->recordButton->isChecked(),
-			      basic.StartRecording, "Starting recording"),
-		MAKE_CALLBACK(basic.outputHandler->RecordingActive() &&
-				      basic.ui->recordButton->isChecked(),
-			      basic.StopRecording, "Stopping recording"),
-		this, this);
 	LoadHotkeyPair(recordingHotkeys, "OBSBasic.StartRecording",
 		       "OBSBasic.StopRecording");
 
@@ -5044,7 +5054,7 @@ inline void OBSBasic::OnDeactivate()
 
 		if (trayIcon)
 			trayIcon->setIcon(QIcon::fromTheme(
-				"obs-tray", QIcon(":/res/images/obs.png")));
+				"obs-tray", QIcon(":/res/images/telley.png")));
 	}
 }
 
@@ -5131,6 +5141,7 @@ void OBSBasic::StreamDelayStopping(int sec)
 	ui->streamButton->setText(QTStr("Basic.Main.StartStreaming"));
 	ui->streamButton->setEnabled(true);
 	ui->streamButton->setChecked(false);
+        ui->streamButton->setStyleSheet("background-color: rgb(100, 30, 22);");
 
 	if (sysTrayStream) {
 		sysTrayStream->setText(ui->streamButton->text());
@@ -5158,6 +5169,7 @@ void OBSBasic::StreamingStart()
 	ui->streamButton->setText(QTStr("Basic.Main.StopStreaming"));
 	ui->streamButton->setEnabled(true);
 	ui->streamButton->setChecked(true);
+	ui->streamButton->setStyleSheet("background-color: rgb(192, 57, 43);");
 	ui->statusbar->StreamStarted(outputHandler->streamOutput);
 
 	if (sysTrayStream) {
@@ -5176,6 +5188,7 @@ void OBSBasic::StreamingStart()
 void OBSBasic::StreamStopping()
 {
 	ui->streamButton->setText(QTStr("Basic.Main.StoppingStreaming"));
+        ui->streamButton->setStyleSheet("");
 
 	if (sysTrayStream)
 		sysTrayStream->setText(ui->streamButton->text());
@@ -5234,6 +5247,7 @@ void OBSBasic::StreamingStop(int code, QString last_error)
 	ui->streamButton->setText(QTStr("Basic.Main.StartStreaming"));
 	ui->streamButton->setEnabled(true);
 	ui->streamButton->setChecked(false);
+        ui->streamButton->setStyleSheet("");
 
 	if (sysTrayStream) {
 		sysTrayStream->setText(ui->streamButton->text());
@@ -5324,18 +5338,10 @@ void OBSBasic::StartRecording()
 		api->on_event(OBS_FRONTEND_EVENT_RECORDING_STARTING);
 
 	SaveProject();
-
-	if (!outputHandler->StartRecording())
-		ui->recordButton->setChecked(false);
 }
 
 void OBSBasic::RecordStopping()
 {
-	ui->recordButton->setText(QTStr("Basic.Main.StoppingRecording"));
-
-	if (sysTrayRecord)
-		sysTrayRecord->setText(ui->recordButton->text());
-
 	recordingStopping = true;
 	if (api)
 		api->on_event(OBS_FRONTEND_EVENT_RECORDING_STOPPING);
@@ -5354,11 +5360,6 @@ void OBSBasic::StopRecording()
 void OBSBasic::RecordingStart()
 {
 	ui->statusbar->RecordingStarted(outputHandler->fileOutput);
-	ui->recordButton->setText(QTStr("Basic.Main.StopRecording"));
-	ui->recordButton->setChecked(true);
-
-	if (sysTrayRecord)
-		sysTrayRecord->setText(ui->recordButton->text());
 
 	recordingStopping = false;
 	if (api)
@@ -5373,11 +5374,6 @@ void OBSBasic::RecordingStart()
 void OBSBasic::RecordingStop(int code, QString last_error)
 {
 	ui->statusbar->RecordingStopped();
-	ui->recordButton->setText(QTStr("Basic.Main.StartRecording"));
-	ui->recordButton->setChecked(false);
-
-	if (sysTrayRecord)
-		sysTrayRecord->setText(ui->recordButton->text());
 
 	blog(LOG_INFO, RECORDING_STOP);
 
@@ -5715,14 +5711,12 @@ void OBSBasic::on_recordButton_clicked()
 					QTStr("ConfirmStopRecord.Text"));
 
 			if (button == QMessageBox::No) {
-				ui->recordButton->setChecked(true);
 				return;
 			}
 		}
 		StopRecording();
 	} else {
 		if (!NoSourcesConfirmation()) {
-			ui->recordButton->setChecked(false);
 			return;
 		}
 
@@ -5737,19 +5731,19 @@ void OBSBasic::on_settingsButton_clicked()
 
 void OBSBasic::on_actionHelpPortal_triggered()
 {
-	QUrl url = QUrl("https://obsproject.com/help", QUrl::TolerantMode);
+	QUrl url = QUrl("https://telley.live", QUrl::TolerantMode);
 	QDesktopServices::openUrl(url);
 }
 
 void OBSBasic::on_actionWebsite_triggered()
 {
-	QUrl url = QUrl("https://obsproject.com", QUrl::TolerantMode);
+	QUrl url = QUrl("https://telley.live", QUrl::TolerantMode);
 	QDesktopServices::openUrl(url);
 }
 
 void OBSBasic::on_actionDiscord_triggered()
 {
-	QUrl url = QUrl("https://obsproject.com/discord", QUrl::TolerantMode);
+	QUrl url = QUrl("https://telley.live", QUrl::TolerantMode);
 	QDesktopServices::openUrl(url);
 }
 
@@ -6561,9 +6555,7 @@ void OBSBasic::UpdateTitleBar()
 	const char *sceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollection");
 
-	name << "OBS ";
-	if (previewProgramMode)
-		name << "Studio ";
+	name << "Telley Viewer ";
 
 	name << App()->GetVersionString();
 	if (App()->IsPortableMode())
@@ -6643,7 +6635,7 @@ void OBSBasic::on_resetUI_triggered()
 	int mixerSize = cx - (cx22_5 * 2 + cx5 * 2);
 
 	QList<QDockWidget *> docks{ui->scenesDock, ui->sourcesDock,
-				   ui->mixerDock, ui->transitionsDock,
+				   ui->mixerDock,
 				   ui->controlsDock};
 
 	QList<int> sizes{cx22_5, cx22_5, mixerSize, cx5, cx5};
@@ -6651,7 +6643,10 @@ void OBSBasic::on_resetUI_triggered()
 	ui->scenesDock->setVisible(true);
 	ui->sourcesDock->setVisible(true);
 	ui->mixerDock->setVisible(true);
-	ui->transitionsDock->setVisible(true);
+	// <TELLEY>
+	// Hide transitions dock
+	ui->transitionsDock->setVisible(false);
+	// </TELLEY>
 	ui->controlsDock->setVisible(true);
 	statsDock->setVisible(false);
 	statsDock->setFloating(true);
@@ -6673,7 +6668,7 @@ void OBSBasic::on_lockUI_toggled(bool lock)
 	ui->scenesDock->setFeatures(mainFeatures);
 	ui->sourcesDock->setFeatures(mainFeatures);
 	ui->mixerDock->setFeatures(mainFeatures);
-	ui->transitionsDock->setFeatures(mainFeatures);
+	// ui->transitionsDock->setFeatures(mainFeatures);
 	ui->controlsDock->setFeatures(mainFeatures);
 	statsDock->setFeatures(features);
 
@@ -6842,9 +6837,9 @@ void OBSBasic::ToggleShowHide()
 void OBSBasic::SystemTrayInit()
 {
 	trayIcon.reset(new QSystemTrayIcon(
-		QIcon::fromTheme("obs-tray", QIcon(":/res/images/obs.png")),
+		QIcon::fromTheme("obs-tray", QIcon(":/res/images/telley.png")),
 		this));
-	trayIcon->setToolTip("OBS Studio");
+	trayIcon->setToolTip("Telley Viewer");
 
 	showHide = new QAction(QTStr("Basic.SystemTray.Show"), trayIcon.data());
 	sysTrayStream = new QAction(QTStr("Basic.Main.StartStreaming"),
@@ -7491,7 +7486,6 @@ void OBSBasic::UpdatePause(bool activate)
 				   QVariant(QStringLiteral("pauseIconSmall")));
 		connect(pause.data(), &QAbstractButton::clicked, this,
 			&OBSBasic::PauseToggled);
-		ui->recordingLayout->addWidget(pause.data());
 	} else {
 		pause.reset();
 	}

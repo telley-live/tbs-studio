@@ -884,12 +884,12 @@ static obs_properties_t *vt_h264_properties(void *unused)
 
 static void vt_h264_defaults(obs_data_t *settings)
 {
-	obs_data_set_default_int(settings, "bitrate", 2500);
-	obs_data_set_default_bool(settings, "limit_bitrate", false);
-	obs_data_set_default_int(settings, "max_bitrate", 2500);
-	obs_data_set_default_double(settings, "max_bitrate_window", 1.5f);
-	obs_data_set_default_int(settings, "keyint_sec", 0);
-	obs_data_set_default_string(settings, "profile", "");
+	obs_data_set_default_int(settings, "bitrate", 1000);
+	obs_data_set_default_bool(settings, "limit_bitrate", true);
+	obs_data_set_default_int(settings, "max_bitrate", 3500);
+	obs_data_set_default_double(settings, "max_bitrate_window", 3.0f);
+	obs_data_set_default_int(settings, "keyint_sec", 1);
+	obs_data_set_default_string(settings, "profile", "high");
 	obs_data_set_default_bool(settings, "bframes", true);
 }
 
