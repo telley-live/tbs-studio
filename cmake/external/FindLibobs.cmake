@@ -99,7 +99,7 @@ if(LIBOBS_FOUND)
 
 	# allows external plugins to easily use/share common dependencies that are often included with libobs (such as FFmpeg)
 	if(NOT DEFINED INCLUDED_LIBOBS_CMAKE_MODULES)
-		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${LIBOBS_INCLUDE_DIR}/../cmake/Modules/")
+		set(CMAKE_MODULE_PATH "${LIBOBS_INCLUDE_DIR}/../cmake/Modules/" ${CMAKE_MODULE_PATH})
 		set(INCLUDED_LIBOBS_CMAKE_MODULES true)
 	endif()
 else()

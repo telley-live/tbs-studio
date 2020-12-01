@@ -32,6 +32,8 @@ function(find_ffmpeg_library component header)
 	set(FFMPEG_${component_u}_FOUND FALSE PARENT_SCOPE)
 	set(FFmpeg_${component}_FOUND FALSE PARENT_SCOPE)
 
+	message(STATUS "Looking for ${component}; ${header}")
+
 	if(PKG_CONFIG_FOUND)
 		pkg_check_modules(PC_FFMPEG_${component} QUIET lib${component})
 	endif()
@@ -52,6 +54,12 @@ function(find_ffmpeg_library component header)
 		PATHS
 			/usr/include /usr/local/include /opt/local/include /sw/include
 		PATH_SUFFIXES ffmpeg libav include)
+
+	if(DEFINED FFMPEG_${component}_INCLUDE_DIR)
+		message(STATUS "Found INCLUDE_DIR: ${FFMPEG_${component}_INCLUDE_DIR}")
+	else()
+		message(STATUS "INCLUDE_DIR not found?!")
+	endif()
 
 	find_library(FFMPEG_${component}_LIBRARY
 		NAMES
@@ -75,6 +83,12 @@ function(find_ffmpeg_library component header)
 			../lib${_lib_suffix} ../lib
 			../libs${_lib_suffix} ../libs
 			../bin${_lib_suffix} ../bin)
+	
+	if(DEFINED FFMPEG_${component}_LIBRARY)
+		message(STATUS "Found LIBRARY: ${FFMPEG_${component}_LIBRARY}")
+	else()
+		message(STATUS "LIBRARY not found?!")
+	endif()
 
 	set(FFMPEG_${component_u}_INCLUDE_DIRS ${FFMPEG_${component}_INCLUDE_DIR} PARENT_SCOPE)
 	set(FFMPEG_${component_u}_LIBRARIES ${FFMPEG_${component}_LIBRARY} PARENT_SCOPE)

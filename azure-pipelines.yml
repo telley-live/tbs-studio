@@ -46,6 +46,11 @@ jobs:
     condition: ne(variables['Build.Reason'], 'PullRequest')
     displayName: 'Package dmg'
 
+  - bash: |
+      mkdir -p ./nightly
+      find ./build -name \*.dmg -exec cp -PR \{\} ./nightly/ \;
+    displayName: 'Save dmg'
+
   - task: PublishBuildArtifacts@1
     condition: ne(variables['Build.Reason'], 'PullRequest')
     inputs:
