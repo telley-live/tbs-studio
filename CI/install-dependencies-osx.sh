@@ -13,7 +13,7 @@ brew update > /dev/null
 
 
 #Base OBS Deps and ccache
-brew install jack ccache clang-format fdk-aac swig
+brew install jack speexdsp ccache mbedtls clang-format freetype fdk-aac swig libbluray
 
 # QT - replace obs one, by brew one.
 # brew install https://gist.githubusercontent.com/DDRBoxman/9c7a2b08933166f4b61ed9a44b242609/raw/ef4de6c587c6bd7f50210eccd5bd51ff08e6de13/qt.rb
@@ -32,7 +32,7 @@ ccache -s || echo "CCache is not available."
 # Fetch and untar prebuilt OBS deps that are compatible with older versions of OSX (10.11)
 pushd /tmp
 wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/telley-deps.cpio.bz2
-pax -rjf ./telley-deps.cpio.bz2
+pax -rjf ./telley-deps.cpio.bz2 || true
 popd
 
 # if you have your own libwebrtc already installed, comment the following paragraph out.
