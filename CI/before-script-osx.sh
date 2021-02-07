@@ -6,6 +6,7 @@ cd build
 cmake \
   -DENABLE_SCRIPTING=OFF \
   -DDepsPath=/tmp/telley-deps \
+  -DFFmpegPath=/tmp/telley-deps \
   -DCMAKE_BUILD_TYPE=Release \
   -DVLCPath=/tmp/vlc-3.0.4 \
   -DQTDIR=/usr/local/Cellar/qt/5.14.1 \
@@ -16,4 +17,5 @@ cmake \
   -DOBS_VERSION_OVERRIDE=23.2.0 \
   -DCONFIG_DIR=telley-viewer \
   -DSTATIC_MBEDTLS=ON \
+  -DOBS_OSX_BUNDLE=1 \
   ..
