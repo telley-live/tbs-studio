@@ -89,6 +89,9 @@ find_package(Libcurl REQUIRED)
 include_directories(${LIBCURL_INCLUDE_DIRS})
 add_definitions(${LIBCURL_DEFINITIONS})
 
+find_package(LibTelley REQUIRED)
+include_directories(${LIBTELLEY_INCLUDE_DIRS})
+
 if(WIN32)
 	include_directories(${OBS_JANSSON_INCLUDE_DIRS})
 	include_directories(${BLAKE2_INCLUDE_DIR})

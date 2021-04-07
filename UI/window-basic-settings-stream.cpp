@@ -6,6 +6,8 @@
 #include "window-basic-main.hpp"
 #include "qt-wrappers.hpp"
 
+#include <Telley.h>
+
 #ifdef BROWSER_AVAILABLE
 #include <browser-panel.hpp>
 #include "auth-oauth.hpp"
@@ -152,10 +154,6 @@ void OBSBasicSettings::LoadStream1Settings()
 		ui->customServer->setText(server);
 		ui->room->setText(QT_UTF8(room));
 		ui->authUsername->setText(QT_UTF8(username));
-		QString pwd = QT_UTF8(password);
-                ui->authPw->setEnabled(pwd.isEmpty());
-                ui->authPwShow->setVisible(pwd.isEmpty());
-		ui->authPw->setText(pwd);
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
 
@@ -179,8 +177,6 @@ void OBSBasicSettings::LoadStream1Settings()
 	}
 
 	ui->key->setText(key);
-        ui->authPw->setEchoMode(QLineEdit::Password);
-        ui->authPwShow->setText(QTStr("Show"));
 
 	lastService.clear();
 	on_service_currentIndexChanged(0);
@@ -439,11 +435,11 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
 	} else if (webrtc > 0) {
+		ui->streamStackWidget->setCurrentIndex(1);
 		ui->streamKeyLabel->setVisible(false);
 		ui->streamKeyWidget->setVisible(false);
-		ui->serverStackedWidget->setCurrentIndex(1);
-		ui->serverLabel->setVisible(true);
-		ui->serverStackedWidget->setVisible(true);
+		ui->serverLabel->setVisible(false);
+		ui->serverStackedWidget->setVisible(false);
 		obs_properties_t *props = obs_get_service_properties(webrtc_services[(int)webrtc - 3].c_str());
 		obs_property_t *server = obs_properties_get(props, "server");
 		obs_property_t *room = obs_properties_get(props, "room");
@@ -455,49 +451,18 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->roomLabel->setText(obs_property_description(room));
 		ui->authUsernameLabel->setText(obs_property_description(username));
 		ui->authPwLabel->setText(obs_property_description(password));
-		int min_idx = 1;
-		if (obs_property_visible(server)) {
-			ui->streamkeyPageLayout->insertRow(min_idx, ui->serverLabel,
-							   ui->serverStackedWidget);
-			min_idx++;
-		}
-		if (obs_property_visible(room)) {
-			ui->streamkeyPageLayout->insertRow(min_idx, ui->roomLabel,
-							   ui->room);
-			min_idx++;
-		}
-		if (obs_property_visible(username)) {
-			ui->streamkeyPageLayout->insertRow(min_idx, ui->authUsernameLabel,
-							   ui->authUsername);
-			min_idx++;
-		}
-		if (obs_property_visible(password)) {
-			ui->streamkeyPageLayout->insertRow(min_idx, ui->authPwLabel,
-							   ui->authPwWidget);
-			min_idx++;
-		}
-		if (obs_property_visible(codec)) {
-			ui->streamkeyPageLayout->insertRow(min_idx, ui->codecLabel,
-							   ui->codec);
-			min_idx++;
-		}
-		if (obs_property_visible(protocol)) {
-			ui->streamkeyPageLayout->insertRow(min_idx, ui->streamProtocolLabel,
-							   ui->streamProtocol);
-			min_idx++;
-		}
-		ui->serverLabel->setVisible(obs_property_visible(server));
-		ui->serverStackedWidget->setVisible(obs_property_visible(server));
-		ui->roomLabel->setVisible(obs_property_visible(room));
-		ui->room->setVisible(obs_property_visible(room));
-		ui->authUsernameLabel->setVisible(obs_property_visible(username));
-		ui->authUsername->setVisible(obs_property_visible(username));
-		ui->authPwLabel->setVisible(obs_property_visible(password));
-		ui->authPwWidget->setVisible(obs_property_visible(password));
-		ui->codecLabel->setVisible(obs_property_visible(codec));
-		ui->codec->setVisible(obs_property_visible(codec));
-		ui->streamProtocolLabel->setVisible(obs_property_visible(protocol));
-		ui->streamProtocol->setVisible(obs_property_visible(protocol));
+
+                ui->roomLabel->setVisible(false);
+                ui->room->setVisible(false);
+		ui->codecLabel->setVisible(false);
+		ui->codec->setVisible(false);
+		ui->streamProtocolLabel->setVisible(false);
+		ui->streamProtocol->setVisible(false);
+		ui->authUsernameLabel->setVisible(false);
+		ui->authUsername->setVisible(false);
+
+		ui->disconnectAccount->setVisible(true);
+
 		obs_properties_destroy(props);
 	} else if (!custom && webrtc == 0) { // rtmp_common
 		ui->authUsernameLabel->setText("Username");
@@ -715,10 +680,13 @@ void OBSBasicSettings::on_disconnectAccount_clicked()
 		ui->streamKeyLabel->setVisible(true);
 	}
 
-	ui->connectAccount2->setVisible(true);
+	// ui->connectAccount2->setVisible(true);
 	ui->disconnectAccount->setVisible(false);
 	ui->bandwidthTestEnable->setVisible(false);
 	ui->key->setText("");
+
+	main->telley->Login();
+	accept();
 }
 
 void OBSBasicSettings::on_useStreamKey_clicked()

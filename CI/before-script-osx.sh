@@ -18,4 +18,5 @@ cmake \
   -DCONFIG_DIR=telley-viewer \
   -DSTATIC_MBEDTLS=ON \
   -DOBS_OSX_BUNDLE=1 \
+  -DENABLE_SPARKLE_UPDATER=ON \
   ..

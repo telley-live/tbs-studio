@@ -44,7 +44,7 @@ static inline bool equali(NSString *a, NSString *b)
 		item = app;
 
 	NSBundle *host = updater.hostBundle;
-	if (mpkg && (!app || equali(host.bundlePath, @"/Applications/OBS.app")))
+	if (mpkg && (!app || equali(host.bundlePath, @"/Applications/Telley Viewer.app")))
 		item = mpkg;
 
 	NSMutableDictionary *dict = [NSMutableDictionary
@@ -103,7 +103,7 @@ static inline bool bundle_matches(NSBundle *bundle)
 		return false;
 
 	NSRange r = [bundle.executablePath rangeOfString:@"Contents/MacOS/"];
-	return [bundle.bundleIdentifier isEqual:@"ci.cosmosoftware.obs-webrtc"] &&
+	return [bundle.bundleIdentifier isEqual:@"live.telley.viewer"] &&
 	       r.location != NSNotFound;
 }
 

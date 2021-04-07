@@ -150,8 +150,8 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-353</y>
-              <width>795</width>
+              <y>0</y>
+              <width>626</width>
               <height>1035</height>
              </rect>
             </property>
@@ -1262,7 +1262,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>795</width>
+              <width>740</width>
               <height>793</height>
              </rect>
             </property>
@@ -3716,8 +3716,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>810</width>
-              <height>632</height>
+              <width>691</width>
+              <height>601</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_50">
@@ -4503,8 +4503,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>808</width>
-           <height>680</height>
+           <width>98</width>
+           <height>28</height>
           </rect>
          </property>
          <layout class="QFormLayout" name="hotkeyLayout">
@@ -4549,9 +4549,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-367</y>
+              <y>-286</y>
               <width>795</width>
-              <height>979</height>
+              <height>898</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_23">
@@ -5271,46 +5271,6 @@
                       </size>
                      </property>
                     </spacer>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QGroupBox" name="groupBox_19">
-                  <property name="title">
-                   <string>Basic.Settings.Advanced.Telley</string>
-                  </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_6">
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_24">
-                     <item>
-                      <widget class="QLabel" name="label_21">
-                       <property name="text">
-                        <string>Basic.Settings.Advanced.Telley.Reset</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <spacer name="horizontalSpacer_26">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>624</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="advTelleyResetBtn">
-                       <property name="text">
-                        <string>Basic.Settings.Advanced.Telley.Reset.Button</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
                    </item>
                   </layout>
                  </widget>

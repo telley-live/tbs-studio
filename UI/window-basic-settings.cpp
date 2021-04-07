@@ -579,8 +579,6 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 		SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->advOutTrack6Bitrate, SIGNAL(currentIndexChanged(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
-	connect(ui->advTelleyResetBtn, SIGNAL(clicked()), this,
-		SLOT(TelleyResetStreamConfig()));
 
 	ui->groupBox_5->setVisible(false);
 	ui->groupBox_6->setVisible(false);
@@ -4566,28 +4564,4 @@ void OBSBasicSettings::SetHotkeysIcon(const QIcon &icon)
 void OBSBasicSettings::SetAdvancedIcon(const QIcon &icon)
 {
 	ui->listWidget->item(6)->setIcon(icon);
-}
-
-void OBSBasicSettings::TelleyResetStreamConfig()
-{
-	obs_service_t *service = main->GetService();
-	OBSData hotkey_data = obs_hotkeys_save_service(service);
-	obs_data_release(hotkey_data);
-
-	OBSData settings = obs_service_get_settings(service);
-	obs_data_release(settings);
-	obs_data_erase(settings, "password");
-
-	const char *id = obs_service_get_id(service);
-
-	OBSService new_service = obs_service_create(id, "default_service", settings, hotkey_data);
-	obs_service_release(new_service);
-
-	if (!new_service) {
-		return;
-	}
-
-	main->SetService(new_service);
-	main->SaveService();
-	LoadStream1Settings();
 }
