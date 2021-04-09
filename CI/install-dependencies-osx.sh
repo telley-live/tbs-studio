@@ -22,8 +22,8 @@ brew install qt5
 # Install Packages app so we can build a package later
 # http://s.sudre.free.fr/Software/Packages/about.html
 # NOTE ALEX: pretty sure this does not work with latest version of MacOS
-wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
-sudo installer -pkg ./Packages.pkg -target /
+#wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
+#sudo installer -pkg ./Packages.pkg -target /
 
 pip install dmgbuild
 
