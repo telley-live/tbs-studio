@@ -10,7 +10,6 @@ variables:
   MIXER-HASH: $(mixer_hash)
   RESTREAM-CLIENTID: $(restream_clientid)
   RESTREAM-HASH: $(restream_hash)
-  CODESIGN_PASSWORD: $(codesign_password)
 
 jobs:
 - job: 'Build_macOS'
@@ -26,8 +25,10 @@ jobs:
   - task: InstallAppleCertificate@2
     inputs:
       certSecureFile: 'telley.p12'
-      certPwd: $(CODESIGN_PASSWORD)
+      certPwd: ${CODESIGN_PASSWORD}
       keychain: temp
+    env:
+      CODESIGN_PASSWORD: $(codesign_password)
 
   - script: ./CI/before-script-osx.sh
     displayName: 'Configure CMake'
