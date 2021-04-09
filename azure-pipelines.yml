@@ -25,10 +25,8 @@ jobs:
   - task: InstallAppleCertificate@2
     inputs:
       certSecureFile: 'telley.p12'
-      certPwd: codesign_password
+      certPwd: $(testvar)
       keychain: temp
-    env:
-      CODESIGN_PASSWORD: $(codesign_password)
 
   - script: ./CI/before-script-osx.sh
     displayName: 'Configure CMake'
