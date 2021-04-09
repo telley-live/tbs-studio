@@ -25,7 +25,7 @@ brew install qt5
 #wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
 #sudo installer -pkg ./Packages.pkg -target /
 
-pip install dmgbuild
+pip3 install dmgbuild
 
 # Set up ccache
 export PATH=/usr/local/opt/ccache/libexec:$PATH
