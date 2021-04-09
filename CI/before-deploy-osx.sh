@@ -19,5 +19,5 @@ export BUILD_CONFIG=Release
 cd ./build
 
 hr "Packaging DMG"
-/usr/local/bin/dmgbuild -s ../CI/install/osx/settings.json "$FINAL_APP_NAME" telley-viewer.dmg
+dmgbuild -s ../CI/install/osx/settings.json "$FINAL_APP_NAME" telley-viewer.dmg
 
