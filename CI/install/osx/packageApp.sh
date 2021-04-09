@@ -67,4 +67,4 @@ install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCo
 install_name_tool -change /usr/local/opt/qt/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets "./$APP_NAME.app/Contents/PlugIns/obs-vst.so"
 install_name_tool -change /usr/local/opt/qt/lib/QtMacExtras.framework/Versions/5/QtMacExtras @executable_path/../Frameworks/QtMacExtras.framework/Versions/5/QtMacExtras "./$APP_NAME.app/Contents/PlugIns/obs-vst.so"
 
-install_name_tool -change /usr/local/Cellar/openldap/2.4.56/lib/liblber-2.4.2.dylib @executable_path/../Frameworks/liblber-2.4.2.dylib "./$APP_NAME.app/Contents/Frameworks/libldap-2.4.2.dylib"
+#install_name_tool -change /usr/local/Cellar/openldap/2.4.56/lib/liblber-2.4.2.dylib @executable_path/../Frameworks/liblber-2.4.2.dylib "./$APP_NAME.app/Contents/Frameworks/libldap-2.4.2.dylib"
