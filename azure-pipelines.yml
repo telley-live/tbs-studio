@@ -10,6 +10,7 @@ variables:
   MIXER-HASH: $(mixer_hash)
   RESTREAM-CLIENTID: $(restream_clientid)
   RESTREAM-HASH: $(restream_hash)
+  CODESIGN_PASSWORD: $(codesign_password)
 
 jobs:
 - job: 'Build_macOS'
@@ -25,7 +26,7 @@ jobs:
   - task: InstallAppleCertificate@2
     inputs:
       certSecureFile: 'telley.p12'
-      certPwd: $(codesign_password)
+      certPwd: $(CODESIGN_PASSWORD)
       keychain: temp
 
   - script: ./CI/before-script-osx.sh
