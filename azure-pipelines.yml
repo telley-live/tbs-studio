@@ -25,7 +25,7 @@ jobs:
   - task: InstallAppleCertificate@2
     inputs:
       certSecureFile: 'telley.p12'
-      certPwd: $(testvar)
+      certPwd: $(codesign_password)
       keychain: temp
 
   - script: ./CI/before-script-osx.sh
