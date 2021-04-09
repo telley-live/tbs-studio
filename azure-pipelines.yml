@@ -22,13 +22,11 @@ jobs:
   - script: ./CI/install-dependencies-osx.sh
     displayName: 'Install Dependencies'
 
-  #- task: InstallAppCertificate@2
-  #  inputs:
-  #    certSecureFile: 'identity.p12'
-
-  #- task: InstallAppleProvisioningProfile@1
-  #  inputs:
-  #    provProfileSecureFile: 'profile.mobileprovision'
+  - task: InstallAppleCertificate@2
+    inputs:
+      certSecureFile: 'telley.p12'
+      certPwd: $(codesign_password)
+      keychain: temp
 
   - script: ./CI/before-script-osx.sh
     displayName: 'Configure CMake'
@@ -41,15 +39,17 @@ jobs:
 
   - script: ./CI/after-build-osx.sh
     displayName: 'Prepare app'
+  
+  - bash: |
+      cd ./build
+      codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app" -o runtime --entitlements "../CI/install/osx/entitlements.plist"
+    displayName: 'Sign app'
+    env:
+      CODESIGN_IDENTITY: $(codesign_identity)
 
   - script: ./CI/before-deploy-osx.sh
     condition: ne(variables['Build.Reason'], 'PullRequest')
     displayName: 'Package dmg'
-
-  - bash: |
-      mkdir -p ./nightly
-      find ./build -name \*.dmg -exec cp -PR \{\} ./nightly/ \;
-    displayName: 'Save dmg'
 
   - task: PublishBuildArtifacts@1
     condition: ne(variables['Build.Reason'], 'PullRequest')
