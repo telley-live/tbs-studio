@@ -1,7 +1,7 @@
 # https://aka.ms/yaml
 
 variables:
-- group: my-variable-group
+- group: 'P12 Password'
 - name: CMAKE_PREFIX_PATH
   value: /usr/local/opt/qt5/lib/cmake
 
