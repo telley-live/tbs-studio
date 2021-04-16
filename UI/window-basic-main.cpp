@@ -413,17 +413,31 @@ OBSBasic::OBSBasic(QWidget *parent)
 
 	QLibrary lib("telley");
 	lib.load();
-	blog(LOG_WARNING, "libtelley: %s",
-	     lib.fileName().toStdString().c_str());
 	if (lib.isLoaded()) {
 		typedef void *(*InitializeTelley)(QWidget *);
 		InitializeTelley init = reinterpret_cast<InitializeTelley>(
 			lib.resolve("InitializeTelley"));
 		telley.reset(reinterpret_cast<Telley *>(init(this)));
+
+		char configPath[512];
+		GetConfigPath(configPath, sizeof(configPath), (config_dir + "/telley").c_str());
+		telley->SetConfigDir(QString(configPath));
+
 		connect(telley->qobj(), SIGNAL(LoginComplete(bool)), this,
 			SLOT(TelleyLoginResult(bool)));
 
-		//		QTimer::singleShot(0, telley.get(), SLOT(Login()));
+                telleyLinkPanel.reset(telley->GetLinkPanel());
+		addDockWidget(Qt::BottomDockWidgetArea, telleyLinkPanel.get());
+		telleyLinkPanel->setFloating(false);
+		splitDockWidget(ui->mixerDock, telleyLinkPanel.get(), Qt::Vertical);
+		QDockWidget::DockWidgetFeatures telleyLinkPanelFeatures = telleyLinkPanel->features();
+		telleyLinkPanelFeatures &= ~QDockWidget::DockWidgetClosable;
+		telleyLinkPanel->setFeatures(telleyLinkPanelFeatures);
+                QAction *action = ui->viewMenuDocks->addAction(telleyLinkPanel->windowTitle());
+                action->setCheckable(true);
+                assignDockToggle(telleyLinkPanel.get(), action);
+
+                QTimer::singleShot(0, telley.get(), SLOT(Login()));
 	} else {
 		blog(LOG_WARNING, "Telley library missing: %s",
 		     lib.errorString().toStdString().c_str());
@@ -6701,6 +6715,9 @@ void OBSBasic::on_resetUI_triggered()
 	// <TELLEY>
 	// Hide transitions dock
 	ui->transitionsDock->setVisible(false);
+	telleyLinkPanel->setVisible(true);
+	telleyLinkPanel->setFloating(false);
+	splitDockWidget(ui->mixerDock, telleyLinkPanel.get(), Qt::Vertical);
 	// </TELLEY>
 	ui->controlsDock->setVisible(true);
 	statsDock->setVisible(false);

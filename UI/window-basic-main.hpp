@@ -853,7 +853,9 @@ private:
 	std::unique_ptr<Ui::OBSBasic> ui;
 
 public:
-        QSharedPointer<Telley> telley;
+        QScopedPointer<Telley> telley;
+	QScopedPointer<QDockWidget> telleyLinkPanel;
+	QScopedPointer<QAction> telleyLinkPanelMenu;
 
 private slots:
 	void TelleyLoadStreamSettings();

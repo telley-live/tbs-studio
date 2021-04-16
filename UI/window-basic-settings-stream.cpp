@@ -685,7 +685,9 @@ void OBSBasicSettings::on_disconnectAccount_clicked()
 	ui->bandwidthTestEnable->setVisible(false);
 	ui->key->setText("");
 
-	main->telley->Login();
+	if (main->telley != nullptr) {
+		main->telley->Logout();
+	}
 	accept();
 }
 
