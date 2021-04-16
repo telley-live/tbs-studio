@@ -6,26 +6,20 @@ set -v
 
 #git fetch --unshallow
 
+#Base OBS Deps and ccache
+brew update > /dev/null
+brew bundle --file ./CI/Brewfile
+
 # Leave obs-studio folder
 cd ../
-
-brew update > /dev/null
-
-
-#Base OBS Deps and ccache
-brew install jack speexdsp ccache mbedtls clang-format freetype fdk-aac swig libbluray brotli
-
-# QT - replace obs one, by brew one.
-# brew install https://gist.githubusercontent.com/DDRBoxman/9c7a2b08933166f4b61ed9a44b242609/raw/ef4de6c587c6bd7f50210eccd5bd51ff08e6de13/qt.rb
-brew install qt5
 
 # Install Packages app so we can build a package later
 # http://s.sudre.free.fr/Software/Packages/about.html
 # NOTE ALEX: pretty sure this does not work with latest version of MacOS
-wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
-sudo installer -pkg ./Packages.pkg -target /
+#wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
+#sudo installer -pkg ./Packages.pkg -target /
 
-pip install dmgbuild
+pip3 install dmgbuild
 
 # Set up ccache
 export PATH=/usr/local/opt/ccache/libexec:$PATH
@@ -48,7 +42,8 @@ tar -xf vlc-3.0.4.tar.xz
 
 # NOTE ALEX: sparkle is for auto-update, if autoupdate is not needed, you can comment out this part.
 # Get sparkle
-wget --retry-connrefused --waitretry=1 -O sparkle.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/1.16.0/Sparkle-1.16.0.tar.bz2
+wget --retry-connrefused --waitretry=1 -O sparkle.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/1.26.0/Sparkle-1.26.0.tar.xz
 mkdir ./sparkle
-tar -xf ./sparkle.tar.bz2 -C ./sparkle
+tar -xf ./sparkle.tar.xz -C ./sparkle
+cp -R sparkle /tmp
 sudo cp -R ./sparkle/Sparkle.framework /Library/Frameworks/Sparkle.framework

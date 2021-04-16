@@ -47,7 +47,7 @@ cp /tmp/telley-deps/lib/lib{av,sw,postproc}*.*.dylib    "./$APP_NAME.app/Content
 # -x "./$APP_NAME.app/Contents/PlugIns/obs-outputs.so" \
 # -x "./$APP_NAME.app/Contents/PlugIns/linux-jack.so" \
 
-/usr/local/opt/qt/bin/macdeployqt "./$APP_NAME.app"
+$(brew --prefix qt5)/bin/macdeployqt "./$APP_NAME.app"
 
 mv "./$APP_NAME.app/Contents/MacOS/libobs-opengl.so" "./$APP_NAME.app/Contents/MacOS"
 
