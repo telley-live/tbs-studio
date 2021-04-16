@@ -5303,10 +5303,10 @@ void OBSBasic::StreamingStop(int code, QString last_error)
 	streamingStopping = false;
 	if (api) {
 		api->on_event(OBS_FRONTEND_EVENT_STREAMING_STOPPED);
-		if (!telley.isNull()) {
-			telley->BroadcastStopped();
-		}
 	}
+        if (!telley.isNull()) {
+                telley->BroadcastStopped();
+        }
 
 	OnDeactivate();
 
