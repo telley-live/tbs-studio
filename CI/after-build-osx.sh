@@ -39,7 +39,7 @@ hr "Packaging .app"
 # NOTE ALEX: no update 
 # copy sparkle into the app
 hr "Copying Sparkle.framework"
-cp -r ../../sparkle/Sparkle.framework ./$APP_NAME.app/Contents/Frameworks/
+cp -a ../../sparkle/Sparkle.framework ./$APP_NAME.app/Contents/Frameworks/
 install_name_tool -change @rpath/Sparkle.framework/Versions/A/Sparkle @executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle ./$APP_NAME.app/Contents/MacOS/tv
 
 # NOTE ALEX: enable CEF LATER
