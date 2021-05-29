@@ -427,9 +427,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 			SLOT(TelleyLoginResult(bool)));
 
                 telleyLinkPanel.reset(telley->GetLinkPanel());
-		addDockWidget(Qt::BottomDockWidgetArea, telleyLinkPanel.get());
 		telleyLinkPanel->setFloating(false);
-		splitDockWidget(ui->mixerDock, telleyLinkPanel.get(), Qt::Vertical);
 		QDockWidget::DockWidgetFeatures telleyLinkPanelFeatures = telleyLinkPanel->features();
 		telleyLinkPanelFeatures &= ~QDockWidget::DockWidgetClosable;
 		telleyLinkPanel->setFeatures(telleyLinkPanelFeatures);
@@ -6707,7 +6705,7 @@ void OBSBasic::on_resetUI_triggered()
 	QList<QDockWidget *> docks{ui->scenesDock, ui->sourcesDock,
 				   ui->mixerDock, ui->controlsDock};
 
-	QList<int> sizes{cx22_5, cx22_5, mixerSize, cx5, cx5};
+	QList<int> sizes{cx22_5, cx22_5, mixerSize, cx5};
 
 	ui->scenesDock->setVisible(true);
 	ui->sourcesDock->setVisible(true);
@@ -6723,7 +6721,7 @@ void OBSBasic::on_resetUI_triggered()
 	statsDock->setVisible(false);
 	statsDock->setFloating(true);
 
-	resizeDocks(docks, {cy, cy, cy, cy, cy}, Qt::Vertical);
+	resizeDocks(docks, {cy, cy, cy, cy}, Qt::Vertical);
 	resizeDocks(docks, sizes, Qt::Horizontal);
 #endif
 }

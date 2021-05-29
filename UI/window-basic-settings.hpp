@@ -352,4 +352,7 @@ protected:
 public:
 	OBSBasicSettings(QWidget *parent);
 	~OBSBasicSettings();
+
+private slots:
+	void Slot_TelleyLogoutComplete();
 };

@@ -88,6 +88,11 @@ void OBSBasicSettings::InitStreamPage()
 		SLOT(UpdateServerList()));
 	connect(ui->service, SIGNAL(currentIndexChanged(int)), this,
 		SLOT(UpdateKeyLink()));
+
+	if(main->telley != nullptr) {
+		connect(main->telley.get(), SIGNAL(LogoutComplete()), this,
+			SLOT(Slot_TelleyLogoutComplete()));
+	}
 }
 
 void OBSBasicSettings::LoadStream1Settings()
@@ -688,7 +693,6 @@ void OBSBasicSettings::on_disconnectAccount_clicked()
 	if (main->telley != nullptr) {
 		main->telley->Logout();
 	}
-	accept();
 }
 
 void OBSBasicSettings::on_useStreamKey_clicked()
@@ -707,4 +711,9 @@ void OBSBasicSettings::on_useAuth_toggled()
 	ui->authUsername->setVisible(use_auth);
 	ui->authPwLabel->setVisible(use_auth);
 	ui->authPwWidget->setVisible(use_auth);
+}
+
+void OBSBasicSettings::Slot_TelleyLogoutComplete()
+{
+	accept();
 }
