@@ -119,7 +119,7 @@
      <item>
       <widget class="QStackedWidget" name="settingsPages">
        <property name="currentIndex">
-        <number>6</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="generalPage">
         <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -151,7 +151,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>626</width>
+              <width>795</width>
               <height>1035</height>
              </rect>
             </property>
@@ -1082,10 +1082,10 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
+             <item row="9" column="1">
               <widget class="QLineEdit" name="room"/>
              </item>
-             <item row="6" column="0">
+             <item row="9" column="0">
               <widget class="QLabel" name="roomLabel">
                <property name="text">
                 <string>Room</string>
@@ -1095,10 +1095,10 @@
                </property>
               </widget>
              </item>
-             <item row="7" column="1">
+             <item row="10" column="1">
               <widget class="QLineEdit" name="authUsername"/>
              </item>
-             <item row="7" column="0">
+             <item row="10" column="0">
               <widget class="QLabel" name="authUsernameLabel">
                <property name="text">
                 <string>Basic.Settings.Stream.Custom.Username</string>
@@ -1108,7 +1108,7 @@
                </property>
               </widget>
              </item>
-             <item row="8" column="0">
+             <item row="11" column="0">
               <widget class="QLabel" name="authPwLabel">
                <property name="text">
                 <string>Basic.Settings.Stream.Custom.Password</string>
@@ -1118,7 +1118,7 @@
                </property>
               </widget>
              </item>
-             <item row="8" column="1">
+             <item row="11" column="1">
               <widget class="QWidget" name="authPwWidget" native="true">
                <layout class="QHBoxLayout" name="horizontalLayout_25">
                 <property name="leftMargin">
@@ -1157,7 +1157,7 @@
                </property>
               </widget>
              </item>
-             <item row="9" column="0">
+             <item row="12" column="0">
               <widget class="QLabel" name="codecLabel">
                <property name="text">
                 <string>Codec</string>
@@ -1167,7 +1167,7 @@
                </property>
               </widget>
              </item>
-             <item row="9" column="1">
+             <item row="12" column="1">
               <widget class="QComboBox" name="codec">
                <property name="currentIndex">
                 <number>0</number>
@@ -1194,7 +1194,7 @@
                </item>
               </widget>
              </item>
-             <item row="10" column="0">
+             <item row="13" column="0">
               <widget class="QLabel" name="streamProtocolLabel">
                <property name="text">
                 <string>Protocol</string>
@@ -1204,7 +1204,7 @@
                </property>
               </widget>
              </item>
-             <item row="10" column="1">
+             <item row="13" column="1">
               <widget class="QComboBox" name="streamProtocol">
                <property name="currentIndex">
                 <number>0</number>
@@ -1224,6 +1224,50 @@
                  <string>TCP</string>
                 </property>
                </item>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="telleyStationNameLabel">
+               <property name="text">
+                <string>Station Name:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="telleyStationIdLabel">
+               <property name="text">
+                <string>Station ID:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QCheckBox" name="telleyStagingMode">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Staging Server</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1">
+              <widget class="QLabel" name="telleyStationId">
+               <property name="text">
+                <string>00000000-0000-0000-0000-000000000000</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QLabel" name="telleyStationName">
+               <property name="text">
+                <string>Station Name</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -1262,7 +1306,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>740</width>
+              <width>795</width>
               <height>793</height>
              </rect>
             </property>
@@ -4549,7 +4593,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-286</y>
+              <y>0</y>
               <width>795</width>
               <height>898</height>
              </rect>

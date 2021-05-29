@@ -468,6 +468,24 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 
 		ui->disconnectAccount->setVisible(true);
 
+                ui->telleyStationNameLabel->setVisible(false);
+                ui->telleyStationName->setVisible(false);
+                ui->telleyStationIdLabel->setVisible(false);
+                ui->telleyStationId->setVisible(false);
+                ui->telleyStagingMode->setVisible(false);
+
+		if (main->telley != nullptr) {
+			ui->telleyStationNameLabel->setVisible(true);
+			ui->telleyStationName->setVisible(true);
+			ui->telleyStationName->setText(main->telley->GetEditStationName());
+			ui->telleyStationIdLabel->setVisible(true);
+			ui->telleyStationId->setVisible(true);
+			ui->telleyStationId->setText(main->telley->GetEditStationID());
+			if (main->telley->IsStaging()) {
+				ui->telleyStagingMode->setVisible(true);
+			}
+		}
+
 		obs_properties_destroy(props);
 	} else if (!custom && webrtc == 0) { // rtmp_common
 		ui->authUsernameLabel->setText("Username");
