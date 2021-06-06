@@ -29,12 +29,16 @@ ccache -s || echo "CCache is not available."
 pushd /tmp
 wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/telley-deps.cpio.bz2
 pax -rjf ./telley-deps.cpio.bz2 || true
-ls -l telley-deps/*
 popd
 
 # Fetch prebuilt libtelley.dylib
 pushd /tmp
+echo "Fetching latest libtelley build"
 wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/libtelley.dylib
+pushd telley-deps/include/libtelley
+echo "Fetching latest libtelley header"
+wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/Telley.h -O Telley.h
+popd
 popd
 
 # if you have your own libwebrtc already installed, comment the following paragraph out.
