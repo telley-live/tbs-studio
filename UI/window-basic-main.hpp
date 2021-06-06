@@ -854,7 +854,7 @@ private:
 
 public:
         QScopedPointer<Telley> telley;
-	QScopedPointer<QDockWidget> telleyLinkPanel;
+	QDockWidget *telleyLinkPanel;
 	QScopedPointer<QAction> telleyLinkPanelMenu;
 
 private slots:

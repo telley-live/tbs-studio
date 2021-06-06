@@ -426,14 +426,16 @@ OBSBasic::OBSBasic(QWidget *parent)
 		connect(telley->qobj(), SIGNAL(LoginComplete(bool)), this,
 			SLOT(TelleyLoginResult(bool)));
 
-                telleyLinkPanel.reset(telley->GetLinkPanel());
+                telleyLinkPanel = telley->GetLinkPanel();
+                addDockWidget(Qt::BottomDockWidgetArea, telleyLinkPanel);
 		telleyLinkPanel->setFloating(false);
+                splitDockWidget(ui->mixerDock, telleyLinkPanel, Qt::Vertical);
 		QDockWidget::DockWidgetFeatures telleyLinkPanelFeatures = telleyLinkPanel->features();
 		telleyLinkPanelFeatures &= ~QDockWidget::DockWidgetClosable;
 		telleyLinkPanel->setFeatures(telleyLinkPanelFeatures);
                 QAction *action = ui->viewMenuDocks->addAction(telleyLinkPanel->windowTitle());
                 action->setCheckable(true);
-                assignDockToggle(telleyLinkPanel.get(), action);
+                assignDockToggle(telleyLinkPanel, action);
 
                 QTimer::singleShot(0, telley.get(), SLOT(Login()));
 	} else {
@@ -6715,7 +6717,7 @@ void OBSBasic::on_resetUI_triggered()
 	ui->transitionsDock->setVisible(false);
 	telleyLinkPanel->setVisible(true);
 	telleyLinkPanel->setFloating(false);
-	splitDockWidget(ui->mixerDock, telleyLinkPanel.get(), Qt::Vertical);
+	splitDockWidget(ui->mixerDock, telleyLinkPanel, Qt::Vertical);
 	// </TELLEY>
 	ui->controlsDock->setVisible(true);
 	statsDock->setVisible(false);
@@ -6741,6 +6743,9 @@ void OBSBasic::on_lockUI_toggled(bool lock)
 	// ui->transitionsDock->setFeatures(mainFeatures);
 	ui->controlsDock->setFeatures(mainFeatures);
 	statsDock->setFeatures(features);
+	if (telleyLinkPanel != nullptr) {
+		telleyLinkPanel->setFeatures(mainFeatures);
+	}
 
 	for (int i = extraDocks.size() - 1; i >= 0; i--) {
 		if (!extraDocks[i]) {
