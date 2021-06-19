@@ -82,15 +82,15 @@ jobs:
 
   - bash: |
       mkdir -p ./update
-      VERSION=$($(Build.SourceBranch) | cut -d/ -f3)
+      VERSION=$($(Build.Build.SourceBranch) | cut -d/ -f3)
       find ./build -name \*.dmg -exec cp -PR \{\} ./update/telley-viewer-${VERSION}.dmg \;
-      /tmp/sparkle/bin/generate_appcast $(sparkleKey.secureFilePath) ./update
+      /tmp/sparkle/bin/generate_appcast -f $(sparkleKey.secureFilePath) ./update
     displayName: 'Save versioned DMG'
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    #condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
 
   - task: S3Upload@1
     displayName: 'Publish update to S3'
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    #condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
     inputs:
       awsCredentials: 'telley-sparkle-updates'
       regionName: 'us-east-1'
