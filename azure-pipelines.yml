@@ -88,7 +88,7 @@ jobs:
       echo "Import private key"
       /tmp/sparkle/bin/generate_keys -f $(sparkleKey.secureFilePath)
       echo "Generate appcast"
-      /tmp/sparkle/bin/generate_appcast ./update
+      /tmp/sparkle/bin/generate_appcast -s $(cat $(sparkleKey.secureFilePath)) ./update
       echo "Generated files:"
       ls -l ./update
     displayName: 'Generate Sparkle AppCast'
