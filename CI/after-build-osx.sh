@@ -11,7 +11,7 @@ set -e
 export APP_NAME="TelleyViewer"
 export FINAL_APP_NAME="Telley Viewer"
 export LIBWEBRTC_REV=79
-export DEPLOY_VERSION=23.2
+export DEPLOY_VERSION=23.2.1
 export GIT_HASH=$(git rev-parse --short HEAD)
 export FILE_DATE=$(date +%Y-%m-%d.%H:%M:%S)
 export BUILD_CONFIG=Release
