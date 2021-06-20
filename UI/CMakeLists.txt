@@ -125,7 +125,10 @@ elseif(APPLE)
 
 	option(ENABLE_SPARKLE_UPDATER "Enables updates via the Sparkle framework (don't forget to update the Info.plist for your .app)" OFF)
 	if(ENABLE_SPARKLE_UPDATER)
-		find_library(SPARKLE Sparkle)
+		find_library(SPARKLE Sparkle
+				HINTS
+					ENV SparklePath
+					${SparklePath})
 		include_directories(${SPARKLE})
 		set(obs_PLATFORM_SOURCES
 			${obs_PLATFORM_SOURCES}

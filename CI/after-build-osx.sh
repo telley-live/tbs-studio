@@ -56,12 +56,10 @@ install_name_tool -change @rpath/Sparkle.framework/Versions/A/Sparkle @executabl
 plutil -insert CFBundleVersion            -string $DEPLOY_VERSION "./$APP_NAME.app/Contents/Info.plist"
 plutil -insert CFBundleShortVersionString -string $DEPLOY_VERSION "./$APP_NAME.app/Contents/Info.plist"
 
-plutil -insert TelleyFeedsURL           -string https://updates.telley.live/feeds.xml   ./$APP_NAME.app/Contents/Info.plist
-plutil -insert SUFeedURL                -string https://updates.telley.live/updates.xml ./$APP_NAME.app/Contents/Info.plist
+plutil -insert SUFeedURL                  -string https://updates.telley.live/updates.xml "./$APP_NAME.app/Contents/Info.plist"
 
 # This is only needed for Sparkle Update framework
-plutil -insert SUPublicDSAKeyFile -string TelleyPublicDSAKey.pem ./$APP_NAME.app/Contents/Info.plist
-cp ../CI/install/osx/TelleyPublicDSAKey.pem $APP_NAME.app/Contents/Resources
+plutil -insert SUPublicEDKey              -string $SPARKLE_PUBLIC_KEY "./$APP_NAME.app/Contents/Info.plist"
 
 # NOTE ALEX: MacOS Catalina might make problem about python
 # had to use easy_install pip / pip install dmgbuild / and then change the path to add python-bin

@@ -20,4 +20,5 @@ cmake \
   -DOBS_OSX_BUNDLE=1 \
   -DENABLE_SPARKLE_UPDATER=ON \
   -DcurlPath=/usr \
+  -DSparklePath=/tmp/sparkle \
   ..
