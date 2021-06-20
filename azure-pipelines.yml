@@ -84,6 +84,8 @@ jobs:
       mkdir -p ./update
       VERSION=$(echo $VERSION | cut -d/ -f3)
       find ./build -name \*.dmg -exec cp -PR \{\} ./update/telley-viewer-${VERSION}.dmg \;
+      echo /tmp/sparkle/bin/generate_appcast -f $(sparkleKey.secureFilePath) ./update
+      /tmp/sparkle/bin/generate_appcast -h
       /tmp/sparkle/bin/generate_appcast -f $(sparkleKey.secureFilePath) ./update
     displayName: 'Save versioned DMG'
     env:
