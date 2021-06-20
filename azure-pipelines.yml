@@ -84,11 +84,10 @@ jobs:
       mkdir -p ./update
       VERSION=$(echo $VERSION | cut -d/ -f3)
       find ./build -name \*.dmg -exec cp -PR \{\} ./update/telley-viewer-${VERSION}.dmg \;
-      /tmp/sparkle/bin/generate_appcast -f $SPARKLE_KEY ./update
+      /tmp/sparkle/bin/generate_appcast -f $(sparkleKey.secureFilePath) ./update
     displayName: 'Save versioned DMG'
     env:
-      VERSION: $(Build.SourceBranch)
-      SPARKLE_KEY: $(sparkleKey.secureFilePath)
+      VERSION: $(Build.SourceVersion)
     #condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
 
   - task: S3Upload@1
