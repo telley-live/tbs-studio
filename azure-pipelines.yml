@@ -108,6 +108,6 @@ jobs:
       sourceFolder: './update'
       logRequest: true
       logResponse: true
-      cacheControl: 'no-cache'
+      cacheControl: 'max-age=60'
 
 
