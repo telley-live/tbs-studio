@@ -3103,9 +3103,6 @@ void trigger_sparkle_update();
 
 void OBSBasic::TimedCheckForUpdates()
 {
-	if (!config_get_bool(App()->GlobalConfig(), "General",
-			     "EnableAutoUpdates"))
-		return;
 
 #ifdef UPDATE_SPARKLE
 	init_sparkle_updater(config_get_bool(App()->GlobalConfig(), "General",
