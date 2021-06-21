@@ -106,5 +106,8 @@ jobs:
       globExpressions: '**'
       filesAcl: 'public-read'
       sourceFolder: './update'
+      logRequest: true
+      logResponse: true
+      cacheControl: 'max-age=60'
 
 
