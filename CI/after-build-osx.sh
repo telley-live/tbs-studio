@@ -61,6 +61,9 @@ plutil -insert SUFeedURL                  -string https://updates.telley.live/up
 # This is only needed for Sparkle Update framework
 plutil -insert SUPublicEDKey              -string $SPARKLE_PUBLIC_KEY "./$APP_NAME.app/Contents/Info.plist"
 
+plutil -insert SUEnableAutomaticChecks    -bool YES "./$APP_NAME.app/Contents/Info.plist"
+plutil -insert SUAutomaticallyUpdate      -bool YES "./$APP_NAME.app/Contents/Info.plist"
+
 # NOTE ALEX: MacOS Catalina might make problem about python
 # had to use easy_install pip / pip install dmgbuild / and then change the path to add python-bin
 # anyway, the app needs to be signed before we make the package, and then the package needs to be signed too
