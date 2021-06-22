@@ -34,7 +34,12 @@ popd
 # Fetch prebuilt libtelley.dylib
 pushd /tmp
 echo "Fetching latest libtelley build"
-wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/libtelley.dylib
+# TODO: re-enable once S3 bucket settings are updated
+#wget --retry-connrefused --waitretry=1 https://updates.telley.live/libtelley/libtelley.dylib
+#if [ ! -f libtelley.dylib ] ; then
+#  echo "S3 download failed. Falling back to github URL"
+  wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/libtelley.dylib
+#fi
 pushd telley-deps/include/libtelley
 echo "Fetching latest libtelley header"
 wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/Telley.h -O Telley.h

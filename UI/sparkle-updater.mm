@@ -9,7 +9,6 @@ static inline bool equali(NSString *a, NSString *b)
 @interface OBSSparkleUpdateDelegate
 	: NSObject <SUUpdaterDelegate, SUVersionComparison> {
 }
-@property (nonatomic) bool updateToUndeployed;
 @end
 
 @implementation OBSSparkleUpdateDelegate {
@@ -35,6 +34,11 @@ static inline bool equali(NSString *a, NSString *b)
 	updater
 {
 	return self;
+}
+
+- (void)updater:(SUUpdater *)updater didFindValidUpdate:(SUAppcastItem *)item
+{
+	[updater checkForUpdates:nil];
 }
 
 @end
@@ -69,12 +73,14 @@ static SUUpdater *updater;
 
 static OBSSparkleUpdateDelegate *delegate;
 
-void init_sparkle_updater(bool update_to_undeployed)
+void init_sparkle_updater()
 {
 	updater = [SUUpdater updaterForBundle:find_bundle()];
 	delegate = [[OBSSparkleUpdateDelegate alloc] init];
-	delegate.updateToUndeployed = update_to_undeployed;
+	updater.automaticallyDownloadsUpdates = false;
+	updater.automaticallyChecksForUpdates = false;
 	updater.delegate = delegate;
+        [updater resetUpdateCycle];
 }
 
 void trigger_sparkle_update()

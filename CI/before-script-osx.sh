@@ -14,7 +14,7 @@ cmake \
   -DOPENSSL_ROOT_DIR=/tmp/telley-deps \
   -Dlibwebrtc_DIR=/tmp/libWebRTC-79.0-x64-Rel-COMMUNITY-BETA/cmake \
   -DBUILD_BROWSER=false \
-  -DOBS_VERSION_OVERRIDE=23.2.1 \
+  -DOBS_VERSION_OVERRIDE=23.2.0 \
   -DCONFIG_DIR=telley-viewer \
   -DSTATIC_MBEDTLS=ON \
   -DOBS_OSX_BUNDLE=1 \

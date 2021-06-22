@@ -3097,7 +3097,7 @@ bool OBSBasic::QueryRemoveSource(obs_source_t *source)
 #define UPDATE_CHECK_INTERVAL (60 * 60 * 24 * 4) /* 4 days */
 
 #ifdef UPDATE_SPARKLE
-void init_sparkle_updater(bool update_to_undeployed);
+void init_sparkle_updater();
 void trigger_sparkle_update();
 void trigger_background_update();
 #endif
@@ -3106,8 +3106,7 @@ void OBSBasic::TimedCheckForUpdates()
 {
 
 #ifdef UPDATE_SPARKLE
-	init_sparkle_updater(config_get_bool(App()->GlobalConfig(), "General",
-					     "UpdateToUndeployed"));
+	init_sparkle_updater();
 	QTimer::singleShot(1000, this, SLOT(CheckForUpdate()));
 #elif _WIN32
 	long long lastUpdate = config_get_int(App()->GlobalConfig(), "General",
@@ -7617,5 +7616,7 @@ void OBSBasic::TelleyConfigAudio(double bitrate, double samplerate) {
 }
 
 void OBSBasic::CheckForUpdate() {
+	blog(LOG_INFO, "Checking for updates");
+
 	trigger_background_update();
 }
