@@ -81,3 +81,8 @@ void trigger_sparkle_update()
 {
 	[updater checkForUpdates:nil];
 }
+
+void trigger_background_update()
+{
+	[updater checkForUpdatesInBackground];
+}

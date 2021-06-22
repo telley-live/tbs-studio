@@ -38,7 +38,7 @@ $(brew --prefix dylibbundler)/bin/dylibBundler -b -cd -d "./$APP_NAME.app/Conten
 -x "./$APP_NAME.app/Contents/PlugIns/mac-avcapture.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/mac-capture.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/mac-decklink.so" \
--x "./$APP_NAME.app/Contents/PlugIns/mac-syphon.so" \
+#-x "./$APP_NAME.app/Contents/PlugIns/mac-syphon.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/mac-vth264.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/obs-ffmpeg.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/obs-filters.so" \

@@ -3099,6 +3099,7 @@ bool OBSBasic::QueryRemoveSource(obs_source_t *source)
 #ifdef UPDATE_SPARKLE
 void init_sparkle_updater(bool update_to_undeployed);
 void trigger_sparkle_update();
+void trigger_background_update();
 #endif
 
 void OBSBasic::TimedCheckForUpdates()
@@ -7616,5 +7617,5 @@ void OBSBasic::TelleyConfigAudio(double bitrate, double samplerate) {
 }
 
 void OBSBasic::CheckForUpdate() {
-	CheckForUpdates(false);
+	trigger_background_update();
 }
