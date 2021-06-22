@@ -3107,6 +3107,7 @@ void OBSBasic::TimedCheckForUpdates()
 #ifdef UPDATE_SPARKLE
 	init_sparkle_updater(config_get_bool(App()->GlobalConfig(), "General",
 					     "UpdateToUndeployed"));
+	QTimer::singleShot(1000, this, SLOT(CheckForUpdate()));
 #elif _WIN32
 	long long lastUpdate = config_get_int(App()->GlobalConfig(), "General",
 					      "LastUpdateCheck");
@@ -7612,4 +7613,8 @@ void OBSBasic::TelleyConfigAudio(double bitrate, double samplerate) {
 	blog(LOG_INFO, "audio bitrate: %f; audio samplerate: %f", bitrate, samplerate);
 
         StartStreaming();
+}
+
+void OBSBasic::CheckForUpdate() {
+	CheckForUpdates(false);
 }

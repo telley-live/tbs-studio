@@ -864,6 +864,8 @@ private slots:
 	void TelleyConfigAuth(const QString &streamName, const QString &publishToken);
 	void TelleyConfigVideo(double bitrate, double maxBitrate, const QString &resolution, double framerate);
 	void TelleyConfigAudio(double bitrate, double samplerate);
+
+	void CheckForUpdate();
 };
 
 class SceneRenameDelegate : public QStyledItemDelegate {
