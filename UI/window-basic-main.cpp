@@ -224,7 +224,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->actionDiscord->setVisible(false);
 	ui->actionHelpPortal->setVisible(false);
 	// Should automatic updates be configured? (Sparkle framework)
-	ui->actionCheckForUpdates->setVisible(false);
+	ui->actionCheckForUpdates->setVisible(true);
 	// Should logs be uploaded to Telley?
 	ui->actionUploadCurrentLog->setVisible(false);
 	ui->actionUploadLastCrashLog->setVisible(false);
