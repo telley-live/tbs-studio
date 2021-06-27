@@ -2,6 +2,7 @@
 
 variables:
 - group: 'P12 Password'
+- group: 'sparkle-updates'
 - name: CMAKE_PREFIX_PATH
   value: /usr/local/opt/qt5/lib/cmake
 
@@ -27,7 +28,7 @@ jobs:
     displayName: 'Load sparkle update signing key'
     name: sparkleKey
     inputs:
-      secureFile: 'TelleyPrivateDSAKey.pem'
+      secureFile: 'TelleySparkleKey.priv'
 
   - script: ./CI/before-script-osx.sh
     displayName: 'Configure CMake'
@@ -40,7 +41,7 @@ jobs:
 
   - script: ./CI/after-build-osx.sh
     displayName: 'Prepare app'
-  
+
   - bash: |
       cd ./build
       codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate" -o runtime
@@ -82,15 +83,22 @@ jobs:
 
   - bash: |
       mkdir -p ./update
-      VERSION=$($(Build.SourceBranch) | cut -d/ -f3)
+      VERSION=$(echo $VERSION | cut -d/ -f3)
       find ./build -name \*.dmg -exec cp -PR \{\} ./update/telley-viewer-${VERSION}.dmg \;
-      /tmp/sparkle/bin/generate_appcast $(sparkleKey.secureFilePath) ./update
-    displayName: 'Save versioned DMG'
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      echo "Import private key"
+      /tmp/sparkle/bin/generate_keys -f $(sparkleKey.secureFilePath)
+      echo "Generate appcast"
+      /tmp/sparkle/bin/generate_appcast -s $(cat $(sparkleKey.secureFilePath)) ./update
+      echo "Generated files:"
+      ls -l ./update
+    displayName: 'Generate Sparkle AppCast'
+    env:
+      VERSION: $(Build.SourceVersion)
+    #condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
 
   - task: S3Upload@1
     displayName: 'Publish update to S3'
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    #condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
     inputs:
       awsCredentials: 'telley-sparkle-updates'
       regionName: 'us-east-1'
@@ -98,5 +106,8 @@ jobs:
       globExpressions: '**'
       filesAcl: 'public-read'
       sourceFolder: './update'
+      logRequest: true
+      logResponse: true
+      cacheControl: 'max-age=60'
 
 

@@ -224,7 +224,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->actionDiscord->setVisible(false);
 	ui->actionHelpPortal->setVisible(false);
 	// Should automatic updates be configured? (Sparkle framework)
-	ui->actionCheckForUpdates->setVisible(false);
+	ui->actionCheckForUpdates->setVisible(true);
 	// Should logs be uploaded to Telley?
 	ui->actionUploadCurrentLog->setVisible(false);
 	ui->actionUploadLastCrashLog->setVisible(false);
@@ -3097,19 +3097,17 @@ bool OBSBasic::QueryRemoveSource(obs_source_t *source)
 #define UPDATE_CHECK_INTERVAL (60 * 60 * 24 * 4) /* 4 days */
 
 #ifdef UPDATE_SPARKLE
-void init_sparkle_updater(bool update_to_undeployed);
+void init_sparkle_updater();
 void trigger_sparkle_update();
+void trigger_background_update();
 #endif
 
 void OBSBasic::TimedCheckForUpdates()
 {
-	if (!config_get_bool(App()->GlobalConfig(), "General",
-			     "EnableAutoUpdates"))
-		return;
 
 #ifdef UPDATE_SPARKLE
-	init_sparkle_updater(config_get_bool(App()->GlobalConfig(), "General",
-					     "UpdateToUndeployed"));
+	init_sparkle_updater();
+	QTimer::singleShot(1000, this, SLOT(CheckForUpdate()));
 #elif _WIN32
 	long long lastUpdate = config_get_int(App()->GlobalConfig(), "General",
 					      "LastUpdateCheck");
@@ -7615,4 +7613,10 @@ void OBSBasic::TelleyConfigAudio(double bitrate, double samplerate) {
 	blog(LOG_INFO, "audio bitrate: %f; audio samplerate: %f", bitrate, samplerate);
 
         StartStreaming();
+}
+
+void OBSBasic::CheckForUpdate() {
+	blog(LOG_INFO, "Checking for updates");
+
+	trigger_background_update();
 }

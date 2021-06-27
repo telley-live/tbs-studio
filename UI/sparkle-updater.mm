@@ -9,68 +9,9 @@ static inline bool equali(NSString *a, NSString *b)
 @interface OBSSparkleUpdateDelegate
 	: NSObject <SUUpdaterDelegate, SUVersionComparison> {
 }
-@property (nonatomic) bool updateToUndeployed;
 @end
 
 @implementation OBSSparkleUpdateDelegate {
-}
-
-@synthesize updateToUndeployed;
-
-- (SUAppcastItem *)bestValidUpdateWithDeltasInAppcast:(SUAppcast *)appcast
-					   forUpdater:(SUUpdater *)updater
-{
-	SUAppcastItem *item = appcast.items.firstObject;
-	if (!appcast.items.firstObject)
-		return nil;
-
-	SUAppcastItem *app = nil, *mpkg = nil;
-	for (SUAppcastItem *item in appcast.items) {
-		NSString *deployed = item.propertiesDictionary[@"ce:deployed"];
-		if (deployed && !(deployed.boolValue || updateToUndeployed))
-			continue;
-
-		NSString *type = item.propertiesDictionary[@"ce:packageType"];
-		if (!mpkg && (!type || equali(type, @"mpkg")))
-			mpkg = item;
-		else if (!app && type && equali(type, @"app"))
-			app = item;
-
-		if (app && mpkg)
-			break;
-	}
-
-	if (app)
-		item = app;
-
-	NSBundle *host = updater.hostBundle;
-	if (mpkg && (!app || equali(host.bundlePath, @"/Applications/Telley Viewer.app")))
-		item = mpkg;
-
-	NSMutableDictionary *dict = [NSMutableDictionary
-		dictionaryWithDictionary:item.propertiesDictionary];
-	NSString *build = [host objectForInfoDictionaryKey:@"CFBundleVersion"];
-	NSString *url = dict[@"sparkle:releaseNotesLink"];
-	dict[@"sparkle:releaseNotesLink"] =
-		[url stringByAppendingFormat:@"#%@", build];
-
-	return [[SUAppcastItem alloc] initWithDictionary:dict];
-}
-
-- (SUAppcastItem *)bestValidUpdateInAppcast:(SUAppcast *)appcast
-				 forUpdater:(SUUpdater *)updater
-{
-	SUAppcastItem *selected = [self
-		bestValidUpdateWithDeltasInAppcast:appcast
-					forUpdater:updater];
-
-	NSBundle *host = updater.hostBundle;
-	NSString *build = [host objectForInfoDictionaryKey:@"CFBundleVersion"];
-	SUAppcastItem *deltaUpdate = [selected deltaUpdates][build];
-	if (deltaUpdate)
-		return deltaUpdate;
-
-	return selected;
 }
 
 - (NSString *)feedURLStringForUpdater:(SUUpdater *)updater
@@ -93,6 +34,11 @@ static inline bool equali(NSString *a, NSString *b)
 	updater
 {
 	return self;
+}
+
+- (void)updater:(SUUpdater *)updater didFindValidUpdate:(SUAppcastItem *)item
+{
+	[updater checkForUpdates:nil];
 }
 
 @end
@@ -127,15 +73,22 @@ static SUUpdater *updater;
 
 static OBSSparkleUpdateDelegate *delegate;
 
-void init_sparkle_updater(bool update_to_undeployed)
+void init_sparkle_updater()
 {
 	updater = [SUUpdater updaterForBundle:find_bundle()];
 	delegate = [[OBSSparkleUpdateDelegate alloc] init];
-	delegate.updateToUndeployed = update_to_undeployed;
+	updater.automaticallyDownloadsUpdates = false;
+	updater.automaticallyChecksForUpdates = false;
 	updater.delegate = delegate;
+        [updater resetUpdateCycle];
 }
 
 void trigger_sparkle_update()
 {
 	[updater checkForUpdates:nil];
+}
+
+void trigger_background_update()
+{
+	[updater checkForUpdatesInBackground];
 }
