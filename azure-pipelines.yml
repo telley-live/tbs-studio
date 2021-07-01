@@ -7,6 +7,9 @@ variables:
   value: /usr/local/opt/qt5/lib/cmake
 
 trigger:
+  branches:
+    include:
+      - '*'
   tags:
     include:
       - '*'
