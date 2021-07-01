@@ -438,6 +438,8 @@ OBSBasic::OBSBasic(QWidget *parent)
                 assignDockToggle(telleyLinkPanel, action);
 
                 QTimer::singleShot(0, telley.get(), SLOT(Login()));
+
+                ui->streamButton->setStyleSheet("background-color: rgb(64, 68, 177);");
 	} else {
 		blog(LOG_WARNING, "Telley library missing: %s",
 		     lib.errorString().toStdString().c_str());
@@ -5232,7 +5234,7 @@ void OBSBasic::StreamingStart()
 void OBSBasic::StreamStopping()
 {
 	ui->streamButton->setText(QTStr("Basic.Main.StoppingStreaming"));
-	ui->streamButton->setStyleSheet("");
+        ui->streamButton->setStyleSheet("background-color: rgb(192, 57, 43);");
 
 	if (sysTrayStream)
 		sysTrayStream->setText(ui->streamButton->text());
