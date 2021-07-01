@@ -82,10 +82,9 @@ jobs:
       mkdir -p ./nightly
       find ./build -name \*.dmg -exec cp -PR \{\} ./nightly \;
     displayName: 'Save nightly DMG'
-    condition: ne(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), true)
 
   - task: PublishBuildArtifacts@1
-    condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['Build.SourceBranch'], 'refs/tags/'))
+    condition: ne(variables['Build.Reason'], 'PullRequest')
     displayName: 'Publish nightly DMG'
     inputs:
       pathtoPublish: './nightly'
