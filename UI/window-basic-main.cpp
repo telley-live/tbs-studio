@@ -5183,7 +5183,7 @@ void OBSBasic::StreamDelayStopping(int sec)
 	ui->streamButton->setText(QTStr("Basic.Main.StartStreaming"));
 	ui->streamButton->setEnabled(true);
 	ui->streamButton->setChecked(false);
-	ui->streamButton->setStyleSheet("background-color: rgb(100, 30, 22);");
+        ui->streamButton->setStyleSheet("background-color: rgb(64, 68, 177);");
 
 	if (sysTrayStream) {
 		sysTrayStream->setText(ui->streamButton->text());
@@ -5234,7 +5234,7 @@ void OBSBasic::StreamingStart()
 void OBSBasic::StreamStopping()
 {
 	ui->streamButton->setText(QTStr("Basic.Main.StoppingStreaming"));
-        ui->streamButton->setStyleSheet("background-color: rgb(192, 57, 43);");
+        ui->streamButton->setStyleSheet("background-color: rgb(64, 68, 177);");
 
 	if (sysTrayStream)
 		sysTrayStream->setText(ui->streamButton->text());
@@ -5293,7 +5293,7 @@ void OBSBasic::StreamingStop(int code, QString last_error)
 	ui->streamButton->setText(QTStr("Basic.Main.StartStreaming"));
 	ui->streamButton->setEnabled(true);
 	ui->streamButton->setChecked(false);
-	ui->streamButton->setStyleSheet("");
+        ui->streamButton->setStyleSheet("background-color: rgb(64, 68, 177);");
 
 	if (sysTrayStream) {
 		sysTrayStream->setText(ui->streamButton->text());
