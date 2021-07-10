@@ -118,5 +118,3 @@ jobs:
       logRequest: true
       logResponse: true
       cacheControl: 'max-age=60'
-
-
