@@ -584,6 +584,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	ui->groupBox_6->setVisible(false);
 	ui->advOutTabs->removeTab(3);
 	ui->advOutTabs->removeTab(1);
+	ui->advOutEncoder->setEnabled(false);
 
 	//Apply button disabled until change.
 	EnableApplyButton(false);

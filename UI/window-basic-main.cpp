@@ -7607,12 +7607,40 @@ void OBSBasic::TelleyConfigAuth(const QString &streamName,
 void OBSBasic::TelleyConfigVideo(double bitrate, double maxBitrate,
 				 const QString &resolution, double framerate)
 {
-	blog(LOG_INFO, "video bitrate: %f; max bitrate: %f; resolution: %s; framerate: %f",
-	     bitrate, maxBitrate, resolution.toStdString().c_str(), framerate);
+	QString res = resolution;
+
+	// apply defaults to missing values
+	if (bitrate == 0.0) {
+		bitrate = 1000;
+	}
+	if (maxBitrate == 0.0) {
+		maxBitrate = 3500;
+	}
+	if (res.isEmpty()) {
+		res = "1280x720";
+	}
+	if (framerate == 0.0) {
+		framerate = 30.0;
+	}
+
+        blog(LOG_INFO, "video bitrate: %f; max bitrate: %f; resolution: %s; framerate: %f",
+             bitrate, maxBitrate, res.toStdString().c_str(), framerate);
+
+        TelleyUpdateStreamSettings(false, 0, 0, bitrate, maxBitrate, res, framerate);
 }
 
 void OBSBasic::TelleyConfigAudio(double bitrate, double samplerate) {
-	blog(LOG_INFO, "audio bitrate: %f; audio samplerate: %f", bitrate, samplerate);
+	// apply defaults to missing values
+	if (bitrate == 0.0) {
+		bitrate = 128.0;
+	}
+	if (samplerate == 0.0) {
+		samplerate = 48000.0;
+	}
+
+        blog(LOG_INFO, "audio bitrate: %f; audio samplerate: %f", bitrate, samplerate);
+
+        TelleyUpdateStreamSettings(true, bitrate, samplerate);
 
         StartStreaming();
 }
@@ -7621,4 +7649,53 @@ void OBSBasic::CheckForUpdate() {
 	blog(LOG_INFO, "Checking for updates");
 
 	trigger_background_update();
+}
+
+void OBSBasic::TelleyUpdateStreamSettings(bool updateAudio, double audioBitrate, double audioSamplerate,
+					  double videoBitrate, double videoMaxBitrate, const QString &resolution, double framerate) {
+        auto *config = Config();
+
+        if (updateAudio) {
+                config_set_uint(config, "Audio", "SampleRate", (int)audioSamplerate);
+                char track[] = "TrackXBitrate";
+                for (int i = 1; i <= 6; ++i) {
+                        sprintf(track, "Track%dBitrate", i);
+                        int bitrate = config_get_int(config, "AdvOut", track);
+                        if (bitrate > audioBitrate) {
+                                config_set_int(config, "AdvOut", track,
+                                               audioBitrate);
+                        }
+                }
+	} else {
+		auto res = resolution.split('x', QString::SkipEmptyParts, Qt::CaseInsensitive);
+
+                config_set_string(config, "Output", "Mode", "Advanced");
+		config_set_int(config, "Video", "OutputCX", res.at(0).toInt());
+		config_set_int(config, "Video", "OutputCY", res.at(1).toInt());
+		config_set_int(config, "Video", "FPSType", 1);
+		config_set_int(config, "Video", "FPSInt", (int)framerate);
+
+                Json videoConfig = Json::object{{"bitrate", (int)videoBitrate},
+                             {"max_bitrate", (int)videoMaxBitrate},
+                             {"max_bitrate_window", 3.0},
+                             {"keyint_sec", 1},
+                             {"limit_bitrate", true},
+                             {"profile", "high"},
+                             {"bframes", true}};
+                std::string videoConfigStr = videoConfig.dump();
+
+                char jsonPath[512];
+                if (GetProfilePath(jsonPath,
+                                   sizeof(jsonPath),
+                                   "streamEncoder.json") > 0) {
+                        os_quick_write_utf8_file_safe(jsonPath,
+                                                      videoConfigStr.c_str(),
+                                                      videoConfigStr.length(), false,
+                                                      "tmp", "bak");
+                }
+
+		ResetVideo();
+		ResetOutputs();
+	}
+        config_save_safe(config, "tmp", nullptr);
 }

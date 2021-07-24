@@ -864,6 +864,8 @@ private slots:
 	void TelleyConfigAuth(const QString &streamName, const QString &publishToken);
 	void TelleyConfigVideo(double bitrate, double maxBitrate, const QString &resolution, double framerate);
 	void TelleyConfigAudio(double bitrate, double samplerate);
+	void TelleyUpdateStreamSettings(bool updateAudio = true, double audioBitrate = 0.0, double audioSamplerate = 0.0,
+					double videoBitrate = 0.0, double videoMaxBitrate = 0.0, const QString &resolution = "", double framerate = 0.0);
 
 	void CheckForUpdate();
 };

@@ -85,10 +85,14 @@ void init_sparkle_updater()
 
 void trigger_sparkle_update()
 {
-	[updater checkForUpdates:nil];
+        if (find_bundle() != nil) {
+		[updater checkForUpdates:nil];
+	}
 }
 
 void trigger_background_update()
 {
-	[updater checkForUpdatesInBackground];
+	if (find_bundle() != nil) {
+		[updater checkForUpdatesInBackground];
+	}
 }

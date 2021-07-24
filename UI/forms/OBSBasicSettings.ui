@@ -119,7 +119,7 @@
      <item>
       <widget class="QStackedWidget" name="settingsPages">
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="generalPage">
         <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -151,7 +151,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>795</width>
+              <width>626</width>
               <height>1035</height>
              </rect>
             </property>
@@ -1891,7 +1891,7 @@
                  <item>
                   <widget class="QTabWidget" name="advOutTabs">
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <property name="usesScrollButtons">
                     <bool>true</bool>
@@ -3760,8 +3760,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>691</width>
-              <height>601</height>
+              <width>810</width>
+              <height>632</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_50">
@@ -4594,7 +4594,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>795</width>
+              <width>755</width>
               <height>898</height>
              </rect>
             </property>
