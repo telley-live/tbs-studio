@@ -58,6 +58,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 set(CMAKE_AUTOMOC TRUE)
 
 find_package(Qt5Svg ${FIND_MODE})
+find_package(Qt5Network ${FIND_MODE})
 
 find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
 
@@ -371,6 +372,7 @@ target_link_libraries(${_gui_name}
 	libobs
 	Qt5::Widgets
 	Qt5::Svg
+	Qt5::Network
 	obs-frontend-api
 	${FFMPEG_LIBRARIES}
 	${LIBCURL_LIBRARIES}

@@ -29,6 +29,7 @@
 #include <QColorDialog>
 #include <QSizePolicy>
 #include <QLibrary>
+#include <QSslSocket>
 
 #include <util/dstr.h>
 #include <util/util.hpp>
@@ -210,6 +211,12 @@ OBSBasic::OBSBasic(QWidget *parent)
 #if RESTREAM_ENABLED
 	RegisterRestreamAuth();
 #endif
+
+        if (!QSslSocket::supportsSsl()) {
+                blog(LOG_ERROR, "SSL library build version: %s (%lld)", QSslSocket::sslLibraryBuildVersionString().toUtf8().data(), QSslSocket::sslLibraryBuildVersionNumber());
+                blog(LOG_ERROR, "SSL library version: %s (%lld)", QSslSocket::sslLibraryVersionString().toUtf8().data(), QSslSocket::sslLibraryVersionNumber());
+                throw "SSL is unavailable";
+        }
 
 	setAcceptDrops(true);
 
