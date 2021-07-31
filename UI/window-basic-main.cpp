@@ -27,7 +27,6 @@
 #include <QDesktopWidget>
 #include <QScreen>
 #include <QColorDialog>
-#include <QSizePolicy>
 #include <QLibrary>
 #include <QSslSocket>
 
