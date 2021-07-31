@@ -85,14 +85,18 @@ void init_sparkle_updater()
 
 void trigger_sparkle_update()
 {
-        if (find_bundle() != nil) {
+        NSBundle *bundle = updater.hostBundle;
+        NSLog(@"Bundle: %@", bundle.bundleIdentifier);
+        if (bundle_matches(bundle)) {
 		[updater checkForUpdates:nil];
 	}
 }
 
 void trigger_background_update()
 {
-	if (find_bundle() != nil) {
-		[updater checkForUpdatesInBackground];
-	}
+        NSBundle *bundle = updater.hostBundle;
+	NSLog(@"Bundle: %@", bundle.bundleIdentifier);
+        if (bundle_matches(bundle)) {
+                [updater checkForUpdatesInBackground];
+        }
 }
