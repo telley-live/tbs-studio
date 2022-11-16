@@ -11,7 +11,7 @@ set -e
 export APP_NAME="TelleyViewer"
 export FINAL_APP_NAME="Telley Viewer"
 export LIBWEBRTC_REV=79
-export DEPLOY_VERSION=23.2.6
+export DEPLOY_VERSION=23.2.7
 export GIT_HASH=$(git rev-parse --short HEAD)
 export FILE_DATE=$(date +%Y-%m-%d.%H:%M:%S)
 export BUILD_CONFIG=Release
@@ -36,7 +36,7 @@ hr "Packaging .app"
 #install_name_tool -change /usr/local/opt/openssl@1.1/lib/libssl.1.1.dylib    @executable_path/../Frameworks/libssl.1.1.dylib      ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 #install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @executable_path/../Frameworks/libcrypto.1.1.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 
-# NOTE ALEX: no update 
+# NOTE ALEX: no update
 # copy sparkle into the app
 hr "Copying Sparkle.framework"
 cp -a ../../sparkle/Sparkle.framework ./$APP_NAME.app/Contents/Frameworks/
