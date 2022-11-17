@@ -247,10 +247,11 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
         // Serialize and send
         if (connection->send(close.dump()))
             return false;
-        // Wait for unpublished message(s) to be sent
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        // Stop client
-        if (connection->get_state() == websocketpp::session::state::open)
+	// Wait for unpublished message(s) to be sent, then close connection
+	// Should fix crash https://github.com/CoSMoSoftware/OBS-studio-webrtc/commit/ab50e3d2d807ddb2871e343fcceeab861a05e8fb
+	connection->close(websocketpp::close::status::normal, "");
+	// Stop client
+	if (connection->get_state() == websocketpp::session::state::open)
             client.close(connection, websocketpp::close::status::normal, std::string("disconnect"), ec);
         if (ec)
             warn("> Error on disconnect close: %s", ec.message().c_str());
