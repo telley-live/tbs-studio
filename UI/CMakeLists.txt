@@ -58,6 +58,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 set(CMAKE_AUTOMOC TRUE)
 
 find_package(Qt5Svg ${FIND_MODE})
+find_package(Qt5Network ${FIND_MODE})
 
 find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
 
@@ -88,6 +89,9 @@ endif()
 find_package(Libcurl REQUIRED)
 include_directories(${LIBCURL_INCLUDE_DIRS})
 add_definitions(${LIBCURL_DEFINITIONS})
+
+find_package(LibTelley REQUIRED)
+include_directories(${LIBTELLEY_INCLUDE_DIRS})
 
 if(WIN32)
 	include_directories(${OBS_JANSSON_INCLUDE_DIRS})
@@ -122,7 +126,10 @@ elseif(APPLE)
 
 	option(ENABLE_SPARKLE_UPDATER "Enables updates via the Sparkle framework (don't forget to update the Info.plist for your .app)" OFF)
 	if(ENABLE_SPARKLE_UPDATER)
-		find_library(SPARKLE Sparkle)
+		find_library(SPARKLE Sparkle
+				HINTS
+					ENV SparklePath
+					${SparklePath})
 		include_directories(${SPARKLE})
 		set(obs_PLATFORM_SOURCES
 			${obs_PLATFORM_SOURCES}
@@ -365,6 +372,7 @@ target_link_libraries(${_gui_name}
 	libobs
 	Qt5::Widgets
 	Qt5::Svg
+	Qt5::Network
 	obs-frontend-api
 	${FFMPEG_LIBRARIES}
 	${LIBCURL_LIBRARIES}

@@ -1,15 +1,20 @@
 # https://aka.ms/yaml
 
 variables:
-  CMAKE_PREFIX_PATH: /usr/local/opt/qt5/lib/cmake
-  CEF_BUILD_VERSION: 3.3282.1726.gc8368c8 
-  CEF_VERSION: 3.3440.1805.gbe070f9
-  TWITCH-CLIENTID: $(twitch_clientid)
-  TWITCH-HASH: $(twitch_hash)
-  MIXER-CLIENTID: $(mixer_clientid)
-  MIXER-HASH: $(mixer_hash)
-  RESTREAM-CLIENTID: $(restream_clientid)
-  RESTREAM-HASH: $(restream_hash)
+- group: 'P12 Password'
+- group: 'sparkle-updates'
+- name: CMAKE_PREFIX_PATH
+  value: /usr/local/opt/qt5/lib/cmake
+
+trigger:
+  branches:
+    include:
+      - '*'
+  tags:
+    include:
+      - '*'
+    exclude:
+      - 'deps'
 
 jobs:
 - job: 'Build_macOS'
@@ -22,13 +27,18 @@ jobs:
   - script: ./CI/install-dependencies-osx.sh
     displayName: 'Install Dependencies'
 
-  #- task: InstallAppCertificate@2
-  #  inputs:
-  #    certSecureFile: 'identity.p12'
+  - task: InstallAppleCertificate@2
+    displayName: 'Load app signing certificate'
+    inputs:
+      certSecureFile: 'telley.p12'
+      certPwd: $(codesign_password)
+      keychain: temp
 
-  #- task: InstallAppleProvisioningProfile@1
-  #  inputs:
-  #    provProfileSecureFile: 'profile.mobileprovision'
+  - task: DownloadSecureFile@1
+    displayName: 'Load sparkle update signing key'
+    name: sparkleKey
+    inputs:
+      secureFile: 'TelleySparkleKey.priv'
 
   - script: ./CI/before-script-osx.sh
     displayName: 'Configure CMake'
@@ -42,84 +52,69 @@ jobs:
   - script: ./CI/after-build-osx.sh
     displayName: 'Prepare app'
 
+  - bash: |
+      cd ./build
+      codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate" -o runtime
+      codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop" -o runtime
+      codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app" -o runtime
+      codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app" -o runtime --entitlements "../CI/install/osx/entitlements.plist"
+    displayName: 'Sign app'
+    env:
+      CODESIGN_IDENTITY: $(codesign_identity)
+
+  - bash: |
+      cd ./build
+      xcrun altool --store-password-in-keychain-item "OBS-Codesign-Password" -u "${CODESIGN_IDENT_USER}" -p "${CODESIGN_IDENT_PASS}"
+      xcnotary notarize "Telley Viewer.app" --developer-account "${CODESIGN_IDENT_USER}" --developer-password-keychain-item "OBS-Codesign-Password" --provider "${CODESIGN_IDENT_SHORT}"
+      xcrun stapler staple "Telley Viewer.app"
+    displayName: 'Notarize app'
+    env:
+      CODESIGN_IDENT_USER: $(codesign_notarize_user)
+      CODESIGN_IDENT_PASS: $(codesign_notarize_pass)
+      CODESIGN_IDENT_SHORT: $(codesign_notarize_short_id)
+    # condition: startsWith(variables['build.sourceBranch'], 'refs/tags/')
+
   - script: ./CI/before-deploy-osx.sh
     condition: ne(variables['Build.Reason'], 'PullRequest')
-    displayName: 'Package dmg'
+    displayName: 'Package DMG'
 
   - bash: |
       mkdir -p ./nightly
-      find ./build -name \*.dmg -exec cp -PR \{\} ./nightly/ \;
-    displayName: 'Save dmg'
+      find ./build -name \*.dmg -exec cp -PR \{\} ./nightly \;
+    displayName: 'Save nightly DMG'
 
   - task: PublishBuildArtifacts@1
     condition: ne(variables['Build.Reason'], 'PullRequest')
+    displayName: 'Publish nightly DMG'
     inputs:
       pathtoPublish: './nightly'
       artifactName: build
 
-#- job: 'Build_Windows32'
-#  pool:
-#    vmImage: 'vs2017-win2016'
-#  steps:
-#  - script: git submodule update --init --recursive
-#    displayName: 'Checkout Submodules'
-#  - script: ./CI/install-qt-win.cmd
-#    displayName: 'Install QT'
-#  - script: ./CI/install-script-win.cmd
-#    displayName: 'Download / Setup Deps / Run CMake'
-#  - task: MSBuild@1
-#    displayName: 'Build 32-bit'
-#    inputs: 
-#      msbuildArguments: '/m /p:Configuration=RelWithDebInfo'
-#      solution: .\build32\obs-studio.sln
-#  - script: ./CI/before-deploy-win.cmd
-#    condition: ne(variables['Build.Reason'], 'PullRequest')
-#    displayName: 'Before deploy'
-#  - task: PublishBuildArtifacts@1
-#    condition: ne(variables['Build.Reason'], 'PullRequest')
-#    inputs:
-#      pathtoPublish: './build'
-#      artifactName: winbuild
-#
-#- job: 'Build_Windows64'
-#  pool:
-#    vmImage: 'vs2017-win2016'
-#  steps:
-#  - script: git submodule update --init --recursive
-#    displayName: 'Checkout Submodules'
-#  - script: ./CI/install-qt-win.cmd
-#    displayName: 'Install QT'
-#  - script: ./CI/install-script-win.cmd
-#    displayName: 'Download / Setup Deps / Run CMake'
-#  - task: MSBuild@1
-#    displayName: 'Build 64-bit'
-#    inputs: 
-#      msbuildArguments: '/m /p:Configuration=RelWithDebInfo'
-#      solution: .\build64\obs-studio.sln
-#  - script: ./CI/before-deploy-win.cmd
-#    condition: ne(variables['Build.Reason'], 'PullRequest')
-#    displayName: 'Before deploy'
-#  - task: PublishBuildArtifacts@1
-#    condition: ne(variables['Build.Reason'], 'PullRequest')
-#    inputs:
-#      pathtoPublish: './build'
-#      artifactName: winbuild
-#
-#- job: 'Build_Linux'
-#  pool:
-#    vmImage: 'ubuntu-16.04'
-#  steps:
-#  - script: git submodule update --init --recursive
-#    displayName: 'Checkout Submodules'
-#  - script: ./CI/install-dependencies-linux.sh
-#    displayName: 'Install Dependencies'
-#
-#  - script: ./CI/before-script-linux.sh
-#    displayName: 'CMake'
-#
-#  - bash: |
-#      cd ./build
-#      make -j4
-#      cd -
-#    displayName: 'Build'
+  - bash: |
+      mkdir -p ./update
+      VERSION=$(echo $VERSION | cut -d/ -f3)
+      find ./build -name \*.dmg -exec cp -PR \{\} ./update/telley-viewer-${VERSION}.dmg \;
+      echo "Import private key"
+      /tmp/sparkle/bin/generate_keys -f $(sparkleKey.secureFilePath)
+      echo "Generate appcast"
+      /tmp/sparkle/bin/generate_appcast -s $(cat $(sparkleKey.secureFilePath)) ./update
+      echo "Generated files:"
+      ls -l ./update
+    displayName: 'Generate Sparkle AppCast'
+    env:
+      VERSION: $(Build.SourceVersion)
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
 
+  - task: S3Upload@1
+    displayName: 'Publish update to S3'
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    inputs:
+      awsCredentials: 'telley-sparkle-updates'
+      regionName: 'us-east-1'
+      bucketName: 'telley-sparkle-updates'
+      globExpressions: '**'
+      filesAcl: 'public-read'
+      sourceFolder: './update'
+      logRequest: true
+      logResponse: true
+      cacheControl: 'max-age=60'

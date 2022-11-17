@@ -28,6 +28,8 @@
 #include <QScreen>
 #include <QColorDialog>
 #include <QSizePolicy>
+#include <QLibrary>
+#include <QSslSocket>
 
 #include <util/dstr.h>
 #include <util/util.hpp>
@@ -55,6 +57,8 @@
 #include "remote-text.hpp"
 #include <fstream>
 #include <sstream>
+
+#include "Telley.h"
 
 #ifdef _WIN32
 #include "win-update/win-update.hpp"
@@ -120,8 +124,9 @@ static void AddExtraModulePaths()
 {
 	char base_module_dir[512];
 #if defined(_WIN32) || defined(__APPLE__)
-	int ret = GetProgramDataPath(base_module_dir, sizeof(base_module_dir),
-				     (config_dir + "/plugins/%module%").c_str());
+	int ret =
+		GetProgramDataPath(base_module_dir, sizeof(base_module_dir),
+				   (config_dir + "/plugins/%module%").c_str());
 #else
 	int ret = GetConfigPath(base_module_dir, sizeof(base_module_dir),
 				(config_dir + "/plugins/%module%").c_str());
@@ -134,10 +139,10 @@ static void AddExtraModulePaths()
 #if defined(__APPLE__)
 	obs_add_module_path((path + "/bin").c_str(), (path + "/data").c_str());
 
-	BPtr<char> config_bin =
-		os_get_config_path_ptr((config_dir + "/plugins/%module%/bin").c_str());
-	BPtr<char> config_data =
-		os_get_config_path_ptr((config_dir + "/plugins/%module%/data").c_str());
+	BPtr<char> config_bin = os_get_config_path_ptr(
+		(config_dir + "/plugins/%module%/bin").c_str());
+	BPtr<char> config_data = os_get_config_path_ptr(
+		(config_dir + "/plugins/%module%/data").c_str());
 	obs_add_module_path(config_bin, config_data);
 
 #elif ARCH_BITS == 64
@@ -207,6 +212,12 @@ OBSBasic::OBSBasic(QWidget *parent)
 	RegisterRestreamAuth();
 #endif
 
+        if (!QSslSocket::supportsSsl()) {
+                blog(LOG_ERROR, "SSL library build version: %s (%lld)", QSslSocket::sslLibraryBuildVersionString().toUtf8().data(), QSslSocket::sslLibraryBuildVersionNumber());
+                blog(LOG_ERROR, "SSL library version: %s (%lld)", QSslSocket::sslLibraryVersionString().toUtf8().data(), QSslSocket::sslLibraryVersionNumber());
+                throw "SSL is unavailable";
+        }
+
 	setAcceptDrops(true);
 
 	api = InitializeAPIInterface(this);
@@ -220,7 +231,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->actionDiscord->setVisible(false);
 	ui->actionHelpPortal->setVisible(false);
 	// Should automatic updates be configured? (Sparkle framework)
-	ui->actionCheckForUpdates->setVisible(false);
+	ui->actionCheckForUpdates->setVisible(true);
 	// Should logs be uploaded to Telley?
 	ui->actionUploadCurrentLog->setVisible(false);
 	ui->actionUploadLastCrashLog->setVisible(false);
@@ -406,6 +417,40 @@ OBSBasic::OBSBasic(QWidget *parent)
 		SLOT(PreviewDisabledMenu(const QPoint &)));
 	connect(ui->enablePreviewButton, SIGNAL(clicked()), this,
 		SLOT(TogglePreview()));
+
+	QLibrary lib("telley");
+	lib.load();
+	if (lib.isLoaded()) {
+		typedef void *(*InitializeTelley)(QWidget *);
+		InitializeTelley init = reinterpret_cast<InitializeTelley>(
+			lib.resolve("InitializeTelley"));
+		telley.reset(reinterpret_cast<Telley *>(init(this)));
+
+		char configPath[512];
+		GetConfigPath(configPath, sizeof(configPath), (config_dir + "/telley").c_str());
+		telley->SetConfigDir(QString(configPath));
+
+		connect(telley->qobj(), SIGNAL(LoginComplete(bool)), this,
+			SLOT(TelleyLoginResult(bool)));
+
+                telleyLinkPanel = telley->GetLinkPanel();
+                addDockWidget(Qt::BottomDockWidgetArea, telleyLinkPanel);
+		telleyLinkPanel->setFloating(false);
+                splitDockWidget(ui->mixerDock, telleyLinkPanel, Qt::Vertical);
+		QDockWidget::DockWidgetFeatures telleyLinkPanelFeatures = telleyLinkPanel->features();
+		telleyLinkPanelFeatures &= ~QDockWidget::DockWidgetClosable;
+		telleyLinkPanel->setFeatures(telleyLinkPanelFeatures);
+                QAction *action = ui->viewMenuDocks->addAction(telleyLinkPanel->windowTitle());
+                action->setCheckable(true);
+                assignDockToggle(telleyLinkPanel, action);
+
+                QTimer::singleShot(0, telley.get(), SLOT(Login()));
+
+                ui->streamButton->setStyleSheet("background-color: rgb(64, 68, 177);");
+	} else {
+		blog(LOG_WARNING, "Telley library missing: %s",
+		     lib.errorString().toStdString().c_str());
+	}
 }
 
 static void SaveAudioDevice(const char *name, int channel, obs_data_t *parent,
@@ -1243,7 +1288,8 @@ bool OBSBasic::InitBasicConfigDefaults()
 				true);
 	config_set_default_bool(basicConfig, "AdvOut", "UseRescale", false);
 	config_set_default_uint(basicConfig, "AdvOut", "TrackIndex", 1);
-	config_set_default_string(basicConfig, "AdvOut", "Encoder", "vt_h264_hw");
+	config_set_default_string(basicConfig, "AdvOut", "Encoder",
+				  "vt_h264_hw");
 
 	config_set_default_string(basicConfig, "AdvOut", "RecType", "Standard");
 
@@ -1547,7 +1593,8 @@ void OBSBasic::OBSInit()
 	if (!sceneCollection)
 		throw "Failed to get scene collection name";
 
-	ret = snprintf(fileName, 512, (config_dir + "/basic/scenes/%s.json").c_str(),
+	ret = snprintf(fileName, 512,
+		       (config_dir + "/basic/scenes/%s.json").c_str(),
 		       sceneCollection);
 	if (ret <= 0)
 		throw "Failed to create scene collection file name";
@@ -2382,7 +2429,8 @@ void OBSBasic::SaveProjectDeferred()
 	if (!sceneCollection)
 		return;
 
-	ret = snprintf(fileName, 512, (config_dir + "/basic/scenes/%s.json").c_str(),
+	ret = snprintf(fileName, 512,
+		       (config_dir + "/basic/scenes/%s.json").c_str(),
 		       sceneCollection);
 	if (ret <= 0)
 		return;
@@ -3058,19 +3106,17 @@ bool OBSBasic::QueryRemoveSource(obs_source_t *source)
 #define UPDATE_CHECK_INTERVAL (60 * 60 * 24 * 4) /* 4 days */
 
 #ifdef UPDATE_SPARKLE
-void init_sparkle_updater(bool update_to_undeployed);
+void init_sparkle_updater();
 void trigger_sparkle_update();
+void trigger_background_update();
 #endif
 
 void OBSBasic::TimedCheckForUpdates()
 {
-	if (!config_get_bool(App()->GlobalConfig(), "General",
-			     "EnableAutoUpdates"))
-		return;
 
 #ifdef UPDATE_SPARKLE
-	init_sparkle_updater(config_get_bool(App()->GlobalConfig(), "General",
-					     "UpdateToUndeployed"));
+	init_sparkle_updater();
+	QTimer::singleShot(1000, this, SLOT(CheckForUpdate()));
 #elif _WIN32
 	long long lastUpdate = config_get_int(App()->GlobalConfig(), "General",
 					      "LastUpdateCheck");
@@ -4803,7 +4849,8 @@ void OBSBasic::UploadLog(const char *subdir, const char *file)
 void OBSBasic::on_actionShowLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/logs").c_str()) <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  (config_dir + "/logs").c_str()) <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -4823,7 +4870,8 @@ void OBSBasic::on_actionUploadLastLog_triggered()
 void OBSBasic::on_actionViewCurrentLog_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/logs").c_str()) <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  (config_dir + "/logs").c_str()) <= 0)
 		return;
 
 	const char *log = App()->GetCurrentLog();
@@ -4839,7 +4887,8 @@ void OBSBasic::on_actionViewCurrentLog_triggered()
 void OBSBasic::on_actionShowCrashLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/crashes").c_str()) <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  (config_dir + "/crashes").c_str()) <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -5141,7 +5190,7 @@ void OBSBasic::StreamDelayStopping(int sec)
 	ui->streamButton->setText(QTStr("Basic.Main.StartStreaming"));
 	ui->streamButton->setEnabled(true);
 	ui->streamButton->setChecked(false);
-        ui->streamButton->setStyleSheet("background-color: rgb(100, 30, 22);");
+        ui->streamButton->setStyleSheet("background-color: rgb(64, 68, 177);");
 
 	if (sysTrayStream) {
 		sysTrayStream->setText(ui->streamButton->text());
@@ -5177,8 +5226,12 @@ void OBSBasic::StreamingStart()
 		sysTrayStream->setEnabled(true);
 	}
 
-	if (api)
+	if (api) {
 		api->on_event(OBS_FRONTEND_EVENT_STREAMING_STARTED);
+		if (!telley.isNull()) {
+			telley->BroadcastStarted();
+		}
+	}
 
 	OnActivate();
 
@@ -5188,7 +5241,7 @@ void OBSBasic::StreamingStart()
 void OBSBasic::StreamStopping()
 {
 	ui->streamButton->setText(QTStr("Basic.Main.StoppingStreaming"));
-        ui->streamButton->setStyleSheet("");
+        ui->streamButton->setStyleSheet("background-color: rgb(64, 68, 177);");
 
 	if (sysTrayStream)
 		sysTrayStream->setText(ui->streamButton->text());
@@ -5247,7 +5300,7 @@ void OBSBasic::StreamingStop(int code, QString last_error)
 	ui->streamButton->setText(QTStr("Basic.Main.StartStreaming"));
 	ui->streamButton->setEnabled(true);
 	ui->streamButton->setChecked(false);
-        ui->streamButton->setStyleSheet("");
+        ui->streamButton->setStyleSheet("background-color: rgb(64, 68, 177);");
 
 	if (sysTrayStream) {
 		sysTrayStream->setText(ui->streamButton->text());
@@ -5255,8 +5308,12 @@ void OBSBasic::StreamingStop(int code, QString last_error)
 	}
 
 	streamingStopping = false;
-	if (api)
+	if (api) {
 		api->on_event(OBS_FRONTEND_EVENT_STREAMING_STOPPED);
+	}
+        if (!telley.isNull()) {
+                telley->BroadcastStopped();
+        }
 
 	OnDeactivate();
 
@@ -5694,7 +5751,26 @@ void OBSBasic::on_streamButton_clicked()
 			}
 		}
 
-		StartStreaming();
+		if (!telley.isNull()) {
+			auto dialog = telley->ConfigureStream();
+			connect(dialog,
+				SIGNAL(ConfigureAuth(const QString &,
+						     const QString &)),
+				this,
+				SLOT(TelleyConfigAuth(const QString &,
+						      const QString &)));
+			connect(dialog,
+				SIGNAL(ConfigureVideo(double, double,
+						      const QString &, double)),
+				this,
+				SLOT(TelleyConfigVideo(double, double,
+						       const QString &,
+						       double)));
+			connect(dialog, SIGNAL(ConfigureAudio(double, double)),
+				this, SLOT(TelleyConfigAudio(double, double)));
+		}
+
+		//StartStreaming();
 	}
 }
 
@@ -6581,7 +6657,8 @@ int OBSBasic::GetProfilePath(char *path, size_t size, const char *file) const
 	if (!file)
 		file = "";
 
-	ret = GetConfigPath(profiles_path, 512, (config_dir + "/basic/profiles").c_str());
+	ret = GetConfigPath(profiles_path, 512,
+			    (config_dir + "/basic/profiles").c_str());
 	if (ret <= 0)
 		return ret;
 
@@ -6635,10 +6712,9 @@ void OBSBasic::on_resetUI_triggered()
 	int mixerSize = cx - (cx22_5 * 2 + cx5 * 2);
 
 	QList<QDockWidget *> docks{ui->scenesDock, ui->sourcesDock,
-				   ui->mixerDock,
-				   ui->controlsDock};
+				   ui->mixerDock, ui->controlsDock};
 
-	QList<int> sizes{cx22_5, cx22_5, mixerSize, cx5, cx5};
+	QList<int> sizes{cx22_5, cx22_5, mixerSize, cx5};
 
 	ui->scenesDock->setVisible(true);
 	ui->sourcesDock->setVisible(true);
@@ -6646,12 +6722,15 @@ void OBSBasic::on_resetUI_triggered()
 	// <TELLEY>
 	// Hide transitions dock
 	ui->transitionsDock->setVisible(false);
+	telleyLinkPanel->setVisible(true);
+	telleyLinkPanel->setFloating(false);
+	splitDockWidget(ui->mixerDock, telleyLinkPanel, Qt::Vertical);
 	// </TELLEY>
 	ui->controlsDock->setVisible(true);
 	statsDock->setVisible(false);
 	statsDock->setFloating(true);
 
-	resizeDocks(docks, {cy, cy, cy, cy, cy}, Qt::Vertical);
+	resizeDocks(docks, {cy, cy, cy, cy}, Qt::Vertical);
 	resizeDocks(docks, sizes, Qt::Horizontal);
 #endif
 }
@@ -6671,6 +6750,9 @@ void OBSBasic::on_lockUI_toggled(bool lock)
 	// ui->transitionsDock->setFeatures(mainFeatures);
 	ui->controlsDock->setFeatures(mainFeatures);
 	statsDock->setFeatures(features);
+	if (telleyLinkPanel != nullptr) {
+		telleyLinkPanel->setFeatures(mainFeatures);
+	}
 
 	for (int i = extraDocks.size() - 1; i >= 0; i--) {
 		if (!extraDocks[i]) {
@@ -7489,4 +7571,138 @@ void OBSBasic::UpdatePause(bool activate)
 	} else {
 		pause.reset();
 	}
+}
+
+void OBSBasic::TelleyLoginResult(bool result)
+{
+	if (!result) {
+		QApplication::quit();
+	}
+}
+
+void OBSBasic::TelleyLoadStreamSettings() {}
+
+void OBSBasic::TelleyConfigStreamFinished(int result) {}
+
+void OBSBasic::TelleyConfigAuth(const QString &streamName,
+				const QString &publishToken)
+{
+        obs_service_t *oldService = GetService();
+
+        OBSData hotkeyData = obs_hotkeys_save_service(oldService);
+        obs_data_release(hotkeyData);
+
+        OBSData settings = obs_data_create();
+        obs_data_release(settings);
+
+        obs_data_set_string(settings, "username",
+                            QT_TO_UTF8(streamName));
+        obs_data_set_string(settings, "password",
+                            QT_TO_UTF8(publishToken));
+
+        OBSService newService = obs_service_create(
+                "webrtc_millicast", "default_service", settings, hotkeyData);
+        obs_service_release(newService);
+
+        if (!newService)
+                return;
+
+        SetService(newService);
+        SaveService();
+}
+
+void OBSBasic::TelleyConfigVideo(double bitrate, double maxBitrate,
+				 const QString &resolution, double framerate)
+{
+	QString res = resolution;
+
+	// apply defaults to missing values
+	if (bitrate == 0.0) {
+		bitrate = 1000;
+	}
+	if (maxBitrate == 0.0) {
+		maxBitrate = 3500;
+	}
+	if (res.isEmpty()) {
+		res = "1280x720";
+	}
+	if (framerate == 0.0) {
+		framerate = 30.0;
+	}
+
+        blog(LOG_INFO, "video bitrate: %f; max bitrate: %f; resolution: %s; framerate: %f",
+             bitrate, maxBitrate, res.toStdString().c_str(), framerate);
+
+        TelleyUpdateStreamSettings(false, 0, 0, bitrate, maxBitrate, res, framerate);
+}
+
+void OBSBasic::TelleyConfigAudio(double bitrate, double samplerate) {
+	// apply defaults to missing values
+	if (bitrate == 0.0) {
+		bitrate = 128.0;
+	}
+	if (samplerate == 0.0) {
+		samplerate = 48000.0;
+	}
+
+        blog(LOG_INFO, "audio bitrate: %f; audio samplerate: %f", bitrate, samplerate);
+
+        TelleyUpdateStreamSettings(true, bitrate, samplerate);
+
+        StartStreaming();
+}
+
+void OBSBasic::CheckForUpdate() {
+	blog(LOG_INFO, "Checking for updates");
+
+	trigger_background_update();
+}
+
+void OBSBasic::TelleyUpdateStreamSettings(bool updateAudio, double audioBitrate, double audioSamplerate,
+					  double videoBitrate, double videoMaxBitrate, const QString &resolution, double framerate) {
+        auto *config = Config();
+
+        if (updateAudio) {
+                config_set_uint(config, "Audio", "SampleRate", (int)audioSamplerate);
+                char track[] = "TrackXBitrate";
+                for (int i = 1; i <= 6; ++i) {
+                        sprintf(track, "Track%dBitrate", i);
+                        int bitrate = config_get_int(config, "AdvOut", track);
+                        if (bitrate > audioBitrate) {
+                                config_set_int(config, "AdvOut", track,
+                                               audioBitrate);
+                        }
+                }
+	} else {
+		auto res = resolution.split('x', QString::SkipEmptyParts, Qt::CaseInsensitive);
+
+                config_set_string(config, "Output", "Mode", "Advanced");
+		config_set_int(config, "Video", "OutputCX", res.at(0).toInt());
+		config_set_int(config, "Video", "OutputCY", res.at(1).toInt());
+		config_set_int(config, "Video", "FPSType", 1);
+		config_set_int(config, "Video", "FPSInt", (int)framerate);
+
+                Json videoConfig = Json::object{{"bitrate", (int)videoBitrate},
+                             {"max_bitrate", (int)videoMaxBitrate},
+                             {"max_bitrate_window", 3.0},
+                             {"keyint_sec", 1},
+                             {"limit_bitrate", true},
+                             {"profile", "high"},
+                             {"bframes", true}};
+                std::string videoConfigStr = videoConfig.dump();
+
+                char jsonPath[512];
+                if (GetProfilePath(jsonPath,
+                                   sizeof(jsonPath),
+                                   "streamEncoder.json") > 0) {
+                        os_quick_write_utf8_file_safe(jsonPath,
+                                                      videoConfigStr.c_str(),
+                                                      videoConfigStr.length(), false,
+                                                      "tmp", "bak");
+                }
+
+		ResetVideo();
+		ResetOutputs();
+	}
+        config_save_safe(config, "tmp", nullptr);
 }

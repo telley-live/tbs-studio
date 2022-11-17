@@ -47,6 +47,7 @@ class QMessageBox;
 class QListWidgetItem;
 class VolControl;
 class OBSBasicStats;
+class Telley;
 
 #include "ui_OBSBasic.h"
 #include "ui_ColorSelect.h"
@@ -850,6 +851,23 @@ public:
 
 private:
 	std::unique_ptr<Ui::OBSBasic> ui;
+
+public:
+        QScopedPointer<Telley> telley;
+	QDockWidget *telleyLinkPanel;
+	QScopedPointer<QAction> telleyLinkPanelMenu;
+
+private slots:
+	void TelleyLoadStreamSettings();
+        void TelleyLoginResult(bool);
+	void TelleyConfigStreamFinished(int);
+	void TelleyConfigAuth(const QString &streamName, const QString &publishToken);
+	void TelleyConfigVideo(double bitrate, double maxBitrate, const QString &resolution, double framerate);
+	void TelleyConfigAudio(double bitrate, double samplerate);
+	void TelleyUpdateStreamSettings(bool updateAudio = true, double audioBitrate = 0.0, double audioSamplerate = 0.0,
+					double videoBitrate = 0.0, double videoMaxBitrate = 0.0, const QString &resolution = "", double framerate = 0.0);
+
+	void CheckForUpdate();
 };
 
 class SceneRenameDelegate : public QStyledItemDelegate {
