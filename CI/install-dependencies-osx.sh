@@ -9,6 +9,8 @@ set -v
 #Base OBS Deps and ccache
 brew update > /dev/null
 brew bundle --file ./CI/Brewfile
+# Qt 5.15.2
+brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/46e9c8a25008b60580c62826b025fc346b6a6edd/Formula/qt%405.rb
 
 # Leave obs-studio folder
 cd ../
