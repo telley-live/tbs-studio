@@ -6,9 +6,12 @@ set -v
 
 #git fetch --unshallow
 
-#Base OBS Deps and ccache
-brew update > /dev/null
-brew bundle --file ./CI/Brewfile
+#Base OBS Deps and ccache from older homebrew starting point
+#brew update > /dev/null
+pushd /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core
+git checkout f656d2f6bff77b9a1c34b33c5f0c718e42edcbd3 Formula
+popd
+brew bundle --file ./CI/Brewfile -v -d
 
 # Leave obs-studio folder
 cd ../
@@ -34,10 +37,10 @@ popd
 # Fetch prebuilt libtelley.dylib
 pushd /tmp
 echo "Fetching latest libtelley build"
-wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/libtelley.dylib
+wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps-old-libtelley/libtelley.dylib
 pushd telley-deps/include/libtelley
 echo "Fetching latest libtelley header"
-wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/Telley.h -O Telley.h
+wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps-old-libtelley/Telley.h -O Telley.h
 popd
 popd
 

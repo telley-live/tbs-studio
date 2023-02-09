@@ -10,7 +10,7 @@ cmake \
   -DCMAKE_BUILD_TYPE=Release \
   -DVLCPath=/tmp/vlc-3.0.4 \
   -DQTDIR=$(brew --prefix qt5) \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 \
   -DOPENSSL_ROOT_DIR=/tmp/telley-deps \
   -Dlibwebrtc_DIR=/tmp/libWebRTC-79.0-x64-Rel-COMMUNITY-BETA/cmake \
   -DBUILD_BROWSER=false \
