@@ -43,6 +43,9 @@ jobs:
   
   - bash: |
       cd ./build
+      codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate" -o runtime
+      codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop" -o runtime
+      codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app" -o runtime
       codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app" -o runtime --entitlements "../CI/install/osx/entitlements.plist"
     displayName: 'Sign app'
     env:
@@ -51,13 +54,14 @@ jobs:
   - bash: |
       cd ./build
       xcrun altool --store-password-in-keychain-item "OBS-Codesign-Password" -u "${CODESIGN_IDENT_USER}" -p "${CODESIGN_IDENT_PASS}"
-      xcnotary "Telley Viewer.app" --developer-account "${CODESIGN_IDENT_USER}" --developer-password-keychain-item "OBS-Codesign-Password" --provider "${CODESIGN_IDENT_SHORT}"
+      xcnotary notarize "Telley Viewer.app" --developer-account "${CODESIGN_IDENT_USER}" --developer-password-keychain-item "OBS-Codesign-Password" --provider "${CODESIGN_IDENT_SHORT}"
+      xcrun stapler staple "Telley Viewer.app"
     displayName: 'Notarize app'
     env:
       CODESIGN_IDENT_USER: $(codesign_notarize_user)
       CODESIGN_IDENT_PASS: $(codesign_notarize_pass)
       CODESIGN_IDENT_SHORT: $(codesign_notarize_short_id)
-    condition: startsWith(variables['build.sourceBranch'], 'refs/tags/')
+    # condition: startsWith(variables['build.sourceBranch'], 'refs/tags/')
 
   - script: ./CI/before-deploy-osx.sh
     condition: ne(variables['Build.Reason'], 'PullRequest')

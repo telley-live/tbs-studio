@@ -208,7 +208,7 @@ else:
     info["SUFeedURL"] = '{0}/{1}/{2}/updates.xml'.format(args.base_url, args.user, args.channel)
 
 info["SUPublicDSAKeyFile"] = path.basename(args.public_key)
-info["OBSFeedsURL"] = '{0}/feeds.xml'.format(args.base_url)
+info["TelleyFeedsURL"] = '{0}/feeds.xml'.format(args.base_url)
 
 app_name = info["CFBundleName"]+".app"
 icon_file = "tmp/Contents/Resources/%s"%info["CFBundleIconFile"]
