@@ -11,7 +11,7 @@ set -e
 export APP_NAME="TelleyViewer"
 export FINAL_APP_NAME="Telley Viewer"
 export LIBWEBRTC_REV=79
-export DEPLOY_VERSION=23.2.7
+export DEPLOY_VERSION=23.2
 export GIT_HASH=$(git rev-parse --short HEAD)
 export FILE_DATE=$(date +%Y-%m-%d.%H:%M:%S)
 export BUILD_CONFIG=Release
@@ -36,7 +36,7 @@ hr "Packaging .app"
 #install_name_tool -change /usr/local/opt/openssl@1.1/lib/libssl.1.1.dylib    @executable_path/../Frameworks/libssl.1.1.dylib      ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 #install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @executable_path/../Frameworks/libcrypto.1.1.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 
-# NOTE ALEX: no update
+# NOTE ALEX: no update 
 # copy sparkle into the app
 hr "Copying Sparkle.framework"
 cp -a ../../sparkle/Sparkle.framework ./$APP_NAME.app/Contents/Frameworks/
@@ -56,10 +56,12 @@ install_name_tool -change @rpath/Sparkle.framework/Versions/A/Sparkle @executabl
 plutil -insert CFBundleVersion            -string $DEPLOY_VERSION "./$APP_NAME.app/Contents/Info.plist"
 plutil -insert CFBundleShortVersionString -string $DEPLOY_VERSION "./$APP_NAME.app/Contents/Info.plist"
 
-plutil -insert SUFeedURL                  -string https://updates.telley.live/updates.xml "./$APP_NAME.app/Contents/Info.plist"
+plutil -insert TelleyFeedsURL           -string https://updates.telley.live/feeds.xml   ./$APP_NAME.app/Contents/Info.plist
+plutil -insert SUFeedURL                -string https://updates.telley.live/updates.xml ./$APP_NAME.app/Contents/Info.plist
 
 # This is only needed for Sparkle Update framework
-plutil -insert SUPublicEDKey              -string $SPARKLE_PUBLIC_KEY "./$APP_NAME.app/Contents/Info.plist"
+plutil -insert SUPublicDSAKeyFile -string TelleyPublicDSAKey.pem ./$APP_NAME.app/Contents/Info.plist
+cp ../CI/install/osx/TelleyPublicDSAKey.pem $APP_NAME.app/Contents/Resources
 
 # NOTE ALEX: MacOS Catalina might make problem about python
 # had to use easy_install pip / pip install dmgbuild / and then change the path to add python-bin

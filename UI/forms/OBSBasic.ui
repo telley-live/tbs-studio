@@ -727,7 +727,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>86</width>
+           <width>91</width>
            <height>16</height>
           </rect>
          </property>
@@ -1122,12 +1122,6 @@
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget">
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents"/>
   </widget>
   <action name="actionAddScene">
    <property name="icon">

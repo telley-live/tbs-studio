@@ -251,7 +251,7 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
 	// Should fix crash https://github.com/CoSMoSoftware/OBS-studio-webrtc/commit/ab50e3d2d807ddb2871e343fcceeab861a05e8fb
 	connection->close(websocketpp::close::status::normal, "");
 	// Stop client
-        if (connection->get_state() == websocketpp::session::state::open)
+	if (connection->get_state() == websocketpp::session::state::open)
             client.close(connection, websocketpp::close::status::normal, std::string("disconnect"), ec);
         if (ec)
             warn("> Error on disconnect close: %s", ec.message().c_str());

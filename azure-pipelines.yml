@@ -2,19 +2,8 @@
 
 variables:
 - group: 'P12 Password'
-- group: 'sparkle-updates'
 - name: CMAKE_PREFIX_PATH
   value: /usr/local/opt/qt5/lib/cmake
-
-trigger:
-  branches:
-    include:
-      - '*'
-  tags:
-    include:
-      - '*'
-    exclude:
-      - 'deps'
 
 jobs:
 - job: 'Build_macOS'
@@ -38,7 +27,7 @@ jobs:
     displayName: 'Load sparkle update signing key'
     name: sparkleKey
     inputs:
-      secureFile: 'TelleySparkleKey.priv'
+      secureFile: 'TelleyPrivateDSAKey.pem'
 
   - script: ./CI/before-script-osx.sh
     displayName: 'Configure CMake'
@@ -51,7 +40,7 @@ jobs:
 
   - script: ./CI/after-build-osx.sh
     displayName: 'Prepare app'
-
+  
   - bash: |
       cd ./build
       codesign -v --deep -s "${CODESIGN_IDENTITY}" --force "Telley Viewer.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate" -o runtime
@@ -82,9 +71,10 @@ jobs:
       mkdir -p ./nightly
       find ./build -name \*.dmg -exec cp -PR \{\} ./nightly \;
     displayName: 'Save nightly DMG'
+    condition: ne(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), true)
 
   - task: PublishBuildArtifacts@1
-    condition: ne(variables['Build.Reason'], 'PullRequest')
+    condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['Build.SourceBranch'], 'refs/tags/'))
     displayName: 'Publish nightly DMG'
     inputs:
       pathtoPublish: './nightly'
@@ -92,17 +82,10 @@ jobs:
 
   - bash: |
       mkdir -p ./update
-      VERSION=$(echo $VERSION | cut -d/ -f3)
+      VERSION=$($(Build.SourceBranch) | cut -d/ -f3)
       find ./build -name \*.dmg -exec cp -PR \{\} ./update/telley-viewer-${VERSION}.dmg \;
-      echo "Import private key"
-      /tmp/sparkle/bin/generate_keys -f $(sparkleKey.secureFilePath)
-      echo "Generate appcast"
-      /tmp/sparkle/bin/generate_appcast -s $(cat $(sparkleKey.secureFilePath)) ./update
-      echo "Generated files:"
-      ls -l ./update
-    displayName: 'Generate Sparkle AppCast'
-    env:
-      VERSION: $(Build.SourceVersion)
+      /tmp/sparkle/bin/generate_appcast $(sparkleKey.secureFilePath) ./update
+    displayName: 'Save versioned DMG'
     condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
 
   - task: S3Upload@1
@@ -115,6 +98,5 @@ jobs:
       globExpressions: '**'
       filesAcl: 'public-read'
       sourceFolder: './update'
-      logRequest: true
-      logResponse: true
-      cacheControl: 'max-age=60'
+
+

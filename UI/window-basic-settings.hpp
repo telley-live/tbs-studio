@@ -354,5 +354,5 @@ public:
 	~OBSBasicSettings();
 
 private slots:
-	void Slot_TelleyLogoutComplete();
+	void TelleyResetStreamConfig();
 };
