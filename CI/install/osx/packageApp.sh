@@ -17,7 +17,6 @@ cp ../CI/install/osx/telley.icns                        "./$APP_NAME.app/Content
 cp -r rundir/$BUILD_CONFIG/obs-plugins/                 "./$APP_NAME.app/Contents/PlugIns"
 cp ../CI/install/osx/Info.plist                         "./$APP_NAME.app/Contents"
 cp /tmp/telley-deps/lib/lib{av,sw,postproc}*.*.dylib    "./$APP_NAME.app/Contents/MacOS"
-cp /tmp/libtelley.dylib                                 "./$APP_NAME.app/Contents/Frameworks"
 
 if [ -f "./$APP_NAME.app/Contents/PlugIns/linux-jack.so" ] ; then
   rm "./$APP_NAME.app/Contents/PlugIns/linux-jack.so"
@@ -38,6 +37,7 @@ $(brew --prefix dylibbundler)/bin/dylibBundler -b -cd -d "./$APP_NAME.app/Conten
 -x "./$APP_NAME.app/Contents/PlugIns/mac-avcapture.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/mac-capture.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/mac-decklink.so" \
+-x "./$APP_NAME.app/Contents/PlugIns/mac-syphon.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/mac-vth264.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/obs-ffmpeg.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/obs-filters.so" \
@@ -49,7 +49,6 @@ $(brew --prefix dylibbundler)/bin/dylibBundler -b -cd -d "./$APP_NAME.app/Conten
 -x "./$APP_NAME.app/Contents/MacOS/obs-ffmpeg-mux" \
 -x "./$APP_NAME.app/Contents/PlugIns/obs-x264.so" \
 -x "./$APP_NAME.app/Contents/PlugIns/text-freetype2.so"
-#-x "./$APP_NAME.app/Contents/PlugIns/mac-syphon.so" \
 
 $QT_PREFIX/bin/macdeployqt "./$APP_NAME.app"
 
@@ -70,12 +69,6 @@ install_name_tool -change $QT_PREFIX/lib/QtGui.framework/Versions/5/QtGui @execu
 install_name_tool -change $QT_PREFIX/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore "./$APP_NAME.app/Contents/PlugIns/obs-vst.so"
 install_name_tool -change $QT_PREFIX/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets "./$APP_NAME.app/Contents/PlugIns/obs-vst.so"
 install_name_tool -change $QT_PREFIX/lib/QtMacExtras.framework/Versions/5/QtMacExtras @executable_path/../Frameworks/QtMacExtras.framework/Versions/5/QtMacExtras "./$APP_NAME.app/Contents/PlugIns/obs-vst.so"
-
-# libtelley
-install_name_tool -change $QT_PREFIX/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui "./$APP_NAME.app/Contents/Frameworks/libtelley.dylib"
-install_name_tool -change $QT_PREFIX/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore "./$APP_NAME.app/Contents/Frameworks/libtelley.dylib"
-install_name_tool -change $QT_PREFIX/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets "./$APP_NAME.app/Contents/Frameworks/libtelley.dylib"
-install_name_tool -change $QT_PREFIX/lib/QtNetwork.framework/Versions/5/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork "./$APP_NAME.app/Contents/Frameworks/libtelley.dylib"
 
 # qt plugins
 for folder in {bearer,iconengines,imageformats,platforminputcontexts,platforms,printsupport,styles,virtualkeyboard} ; do

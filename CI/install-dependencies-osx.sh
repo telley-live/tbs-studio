@@ -6,9 +6,12 @@ set -v
 
 #git fetch --unshallow
 
-#Base OBS Deps and ccache
-brew update > /dev/null
-brew bundle --file ./CI/Brewfile
+#Base OBS Deps and ccache from older homebrew starting point
+#brew update > /dev/null
+pushd /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core
+git checkout f656d2f6bff77b9a1c34b33c5f0c718e42edcbd3 Formula
+popd
+brew bundle --file ./CI/Brewfile -v -d
 
 # Leave obs-studio folder
 cd ../
@@ -29,21 +32,6 @@ ccache -s || echo "CCache is not available."
 pushd /tmp
 wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/telley-deps.cpio.bz2
 pax -rjf ./telley-deps.cpio.bz2 || true
-popd
-
-# Fetch prebuilt libtelley.dylib
-pushd /tmp
-echo "Fetching latest libtelley build"
-# TODO: re-enable once S3 bucket settings are updated
-#wget --retry-connrefused --waitretry=1 https://updates.telley.live/libtelley/libtelley.dylib
-#if [ ! -f libtelley.dylib ] ; then
-#  echo "S3 download failed. Falling back to github URL"
-  wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/libtelley.dylib
-#fi
-pushd telley-deps/include/libtelley
-echo "Fetching latest libtelley header"
-wget --retry-connrefused --waitretry=1 https://github.com/telley-live/tbs-studio/releases/download/deps/Telley.h -O Telley.h
-popd
 popd
 
 # if you have your own libwebrtc already installed, comment the following paragraph out.
